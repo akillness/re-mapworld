@@ -1,8 +1,16 @@
-# ooo Seed: Option C
-goal: implement core survival loop
-constraints: Option C (Safe Zones)
-acceptance_criteria:
-- Player can enter map
-- Danger increases 1% every 10s
-- Boss spawns at 100%
-- Portal opens on Boss death
+project: Maple Survival Expedition
+version: 0.1.0-mvp
+principles:
+  - JOC_SOVEREIGNTY
+  - SPEC_FIRST
+  - FAIL_SAFE_EXTRACTION
+mechanics:
+  survival_pressure:
+    type: Option_C
+    danger_rate: 1% per 10s
+    safe_zone: Enabled (Health Regen + Danger Freeze)
+    boss_trigger: Danger 100%
+    extraction: Kill Boss -> Spawn Portal
+  growth:
+    meta: Account Level + Equipment
+    session: Temporary Skill/Rune drops

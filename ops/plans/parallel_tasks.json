@@ -1,0 +1,7 @@
+{
+  "tasks": [
+    {"id": "feat/battle-core", "goal": "Implement HP/MP and Damage logic based on soul-hero", "depends_on": []},
+    {"id": "feat/danger-system", "goal": "Implement 1% per 10s danger gauge and boss trigger", "depends_on": []},
+    {"id": "feat/ui-hud", "goal": "Generate UI assets using god-tibo prompts and layout HUD", "depends_on": []}
+  ]
+}
