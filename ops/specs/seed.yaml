@@ -1,0 +1,8 @@
+# ooo Seed: Option C
+goal: implement core survival loop
+constraints: Option C (Safe Zones)
+acceptance_criteria:
+- Player can enter map
+- Danger increases 1% every 10s
+- Boss spawns at 100%
+- Portal opens on Boss death
