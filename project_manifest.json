@@ -1,0 +1,42 @@
+{
+  "name": "MapleSurvivalExpedition",
+  "engine": "MapleStory Worlds",
+  "createdAt": "2026-06-11",
+  "entryLogic": "SurvivalGameManager.lua",
+  "components": [
+    {
+      "file": "PlayerSurvivalStats.lua",
+      "attachTo": "DefaultPlayer",
+      "purpose": "Player health, hunger, experience, leveling, and death-reset loop"
+    },
+    {
+      "file": "MonsterSpawner.lua",
+      "attachTo": "SpawnPoint empty entity in /maps/map01",
+      "purpose": "Wave-scaled monster spawning via _SpawnService:SpawnByModelId"
+    },
+    {
+      "file": "MonsterAgent.lua",
+      "attachTo": "Monster model prefab",
+      "purpose": "Monster health, attack ticks, defeat cleanup, and reward hooks"
+    },
+    {
+      "file": "SurvivalGameManager.lua",
+      "attachTo": "Workspace Logic",
+      "purpose": "Wave, rest, risk, and expedition completion state"
+    },
+    {
+      "file": "SurvivalHudBridge.lua",
+      "attachTo": "UI manager entity or Workspace Logic",
+      "purpose": "Synchronized HUD display fields"
+    }
+  ],
+  "acceptance": {
+    "staticValidation": "python tools/msw_project_cli.py validate",
+    "simulation": "python tools/msw_project_cli.py simulate --seconds 420",
+    "engineLaunch": "python tools/msw_project_cli.py launch-engine"
+  },
+  "makerMcp": {
+    "exe": "D:/MapleStory Worlds/MakerMCP/MakerMCP.exe",
+    "status": "MCP server initializes, but tool list is empty until MSW Maker exposes its bridge. GUI Maker launch is still verified separately."
+  }
+}

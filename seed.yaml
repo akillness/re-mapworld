@@ -1,0 +1,12 @@
+goal: "Verify the MSW Lua scripts and generate Review_Report.md"
+constraints:
+  - "Check syntax and logic"
+  - "Create markdown report"
+acceptance_criteria:
+  - "Review_Report.md is generated and contains analysis"
+ontology_schema:
+  name: "VerificationTask"
+  description: "Verification task ontology"
+metadata:
+  author: "agent"
+  version: "1.0"
