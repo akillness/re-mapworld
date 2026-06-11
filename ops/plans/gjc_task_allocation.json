@@ -1,0 +1,31 @@
+{
+  "task_id": "gjc-mvp-integration",
+  "assigned_to": "gjc",
+  "goal": "Integrate Option C specs into MSW Engine and verify core loop",
+  "steps": [
+    {
+      "step": 1,
+      "description": "Load SurvivalManager.lua and BattleSystem.lua into MSW Script Editor",
+      "status": "ready"
+    },
+    {
+      "step": 2,
+      "description": "Map DangerGauge UI (10% feedback) and Extraction Portal HUD",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "description": "Execute Play Test in 'mapleworld' process and capture trace logs",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "description": "Analyze Gap between spec-kit and engine behavior",
+      "status": "pending"
+    }
+  ],
+  "monitoring": {
+    "frequency": "20m",
+    "channel": "logs/engine_trace.log"
+  }
+}
