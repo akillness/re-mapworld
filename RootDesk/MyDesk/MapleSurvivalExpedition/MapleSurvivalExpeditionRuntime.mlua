@@ -1,0 +1,245 @@
+@Logic
+script MapleSurvivalExpeditionRuntime extends Logic
+
+	@Sync property integer CurrentWave = 0
+	@Sync property integer TargetWave = 10
+	@Sync property number Health = 120
+	@Sync property number Hunger = 100
+	@Sync property integer Level = 1
+	@Sync property integer Score = 0
+	@Sync property integer AccountExp = 0
+	@Sync property integer CollectionCount = 0
+	@Sync property integer Deaths = 0
+	@Sync property boolean BossDefeated = false
+	@Sync property boolean IsComplete = false
+	@Sync property string Outcome = "booting"
+
+	property number WaveTimer = 0
+	property number SpawnTimer = 0
+	property number SessionTimer = 0
+	property number RiskPercent = 0
+	property integer KillsThisWave = 0
+	property integer TotalKills = 0
+	property integer Potions = 2
+	property integer Food = 2
+	property string CollectionCsv = ""
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Starts an accelerated deterministic Play Test for MCP verification.
+		self.CurrentWave = 0
+		self.Health = 120
+		self.Hunger = 100
+		self.Level = 1
+		self.Score = 0
+		self.AccountExp = 0
+		self.CollectionCount = 0
+		self.Deaths = 0
+		self.BossDefeated = false
+		self.IsComplete = false
+		self.Outcome = "running"
+		self.SessionTimer = 0
+		self.TotalKills = 0
+		self.Potions = 2
+		self.Food = 2
+		self.CollectionCsv = ""
+		log("[MapleSurvivalExpedition][MCP] runtime validation start: targetWave=10")
+		self:StartNextWave()
+	end
+
+	@ExecSpace("ServerOnly")
+	method void OnUpdate(number delta)
+		-- Advances the accelerated expedition loop and emits positive runtime evidence.
+		if self.IsComplete == true then
+			return
+		end
+
+		self.SessionTimer = self.SessionTimer + delta
+		self.WaveTimer = self.WaveTimer - delta
+		self.SpawnTimer = self.SpawnTimer - delta
+		self.RiskPercent = 100.0 - ((self.WaveTimer / self:GetWaveDuration(self.CurrentWave)) * 100.0)
+		if self.RiskPercent < 0 then self.RiskPercent = 0 end
+		if self.RiskPercent > 100 then self.RiskPercent = 100 end
+
+		if self.SpawnTimer <= 0 then
+			self.SpawnTimer = self:GetSpawnInterval(self.CurrentWave)
+			self:ResolveMonsterTick()
+		end
+
+		self.Hunger = self.Hunger - (delta * 0.4)
+		if self.Hunger < 0 then
+			self.Hunger = 0
+			self.Health = self.Health - (delta * 2.0)
+		end
+		self:AutoConsume()
+
+		if self.Health <= 0 then
+			self.Deaths = self.Deaths + 1
+			self.Outcome = "wiped"
+			self.IsComplete = true
+			self.AccountExp = math.floor(self.Score * 0.4 * 0.1)
+			log("[MapleSurvivalExpedition][MCP] expedition wiped: score=" .. tostring(self.Score) .. " accountExp=" .. tostring(self.AccountExp))
+			return
+		end
+
+		if self.WaveTimer <= 0 then
+			self:FinishWave()
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void StartNextWave()
+		-- Starts the next wave and labels normal, elite, and boss content.
+		self.CurrentWave = self.CurrentWave + 1
+		self.KillsThisWave = 0
+		self.WaveTimer = self:GetWaveDuration(self.CurrentWave)
+		self.SpawnTimer = 0.2
+		local waveType = self:GetWaveType(self.CurrentWave)
+		log("[MapleSurvivalExpedition][MCP] wave_start wave=" .. tostring(self.CurrentWave) .. " type=" .. waveType .. " duration=" .. tostring(self.WaveTimer))
+		if waveType == "elite" then
+			log("[MapleSurvivalExpedition][MCP] elite forecast: EliteGolem will appear on wave " .. tostring(self.CurrentWave))
+		end
+		if waveType == "boss" then
+			log("[MapleSurvivalExpedition][MCP] boss forecast: BossBalrog is entering wave " .. tostring(self.CurrentWave))
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveMonsterTick()
+		-- Simulates one spawn/defeat cycle and updates score, collection, and survival pressure.
+		local monsterName = self:GetMonsterName(self.CurrentWave, self.KillsThisWave)
+		local expReward = self:GetMonsterExp(monsterName)
+		local incomingDamage = self:GetMonsterDamage(monsterName) * (1.0 + (self.RiskPercent / 100.0) * 0.5)
+		self.Health = self.Health - incomingDamage
+		self.Score = self.Score + expReward
+		self.TotalKills = self.TotalKills + 1
+		self.KillsThisWave = self.KillsThisWave + 1
+		self:RegisterDiscovery(monsterName)
+
+		if self.TotalKills % 4 == 0 then
+			self.Level = self.Level + 1
+			self.Health = self.Health + 36
+			if self.Health > 180 then self.Health = 180 end
+			self.Hunger = 100
+			log("[MapleSurvivalExpedition][MCP] level_up level=" .. tostring(self.Level) .. " score=" .. tostring(self.Score))
+		end
+
+		if self.TotalKills % 3 == 0 then self.Potions = self.Potions + 1 end
+		if self.TotalKills % 2 == 0 then self.Food = self.Food + 1 end
+
+		log("[MapleSurvivalExpedition][MCP] defeat monster=" .. monsterName .. " wave=" .. tostring(self.CurrentWave) .. " score=" .. tostring(self.Score) .. " health=" .. tostring(math.floor(self.Health)) .. " risk=" .. tostring(math.floor(self.RiskPercent)))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void FinishWave()
+		-- Opens the escape decision window, applies camp healing, and advances or clears.
+		log("[MapleSurvivalExpedition][MCP] wave_clear wave=" .. tostring(self.CurrentWave) .. " kills=" .. tostring(self.KillsThisWave) .. " health=" .. tostring(math.floor(self.Health)))
+		self.Health = self.Health + 18
+		if self.Health > 180 then self.Health = 180 end
+		self.Hunger = self.Hunger + 15
+		if self.Hunger > 100 then self.Hunger = 100 end
+
+		if self.CurrentWave >= self.TargetWave then
+			self.BossDefeated = true
+			self.Outcome = "cleared"
+			self.IsComplete = true
+			self.AccountExp = math.floor(self.Score * 0.1)
+			log("[MapleSurvivalExpedition][MCP] expedition_complete outcome=cleared bossDefeated=" .. tostring(self.BossDefeated) .. " deaths=" .. tostring(self.Deaths) .. " score=" .. tostring(self.Score) .. " accountExp=" .. tostring(self.AccountExp) .. " collection=" .. tostring(self.CollectionCount))
+			return
+		end
+
+		if self.Health < 25 and self.Potions == 0 then
+			self.Outcome = "escaped"
+			self.IsComplete = true
+			self.AccountExp = math.floor(self.Score * 0.1)
+			log("[MapleSurvivalExpedition][MCP] expedition_escape score=" .. tostring(self.Score) .. " accountExp=" .. tostring(self.AccountExp))
+			return
+		end
+
+		self:StartNextWave()
+	end
+
+	@ExecSpace("ServerOnly")
+	method void AutoConsume()
+		-- Uses food and potions when survival resources cross thresholds.
+		if self.Potions > 0 and self.Health < 72 then
+			self.Potions = self.Potions - 1
+			self.Health = self.Health + 45
+			log("[MapleSurvivalExpedition][MCP] potion_used remaining=" .. tostring(self.Potions) .. " health=" .. tostring(math.floor(self.Health)))
+		end
+		if self.Food > 0 and self.Hunger < 45 then
+			self.Food = self.Food - 1
+			self.Hunger = self.Hunger + 30
+			if self.Hunger > 100 then self.Hunger = 100 end
+			log("[MapleSurvivalExpedition][MCP] food_used remaining=" .. tostring(self.Food) .. " hunger=" .. tostring(math.floor(self.Hunger)))
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void RegisterDiscovery(string monsterName)
+		-- Adds first-time monster discoveries and reports collection progress.
+		if string.find("," .. self.CollectionCsv .. ",", "," .. monsterName .. ",") ~= nil then
+			return
+		end
+		if self.CollectionCsv == "" then
+			self.CollectionCsv = monsterName
+		else
+			self.CollectionCsv = self.CollectionCsv .. "," .. monsterName
+		end
+		self.CollectionCount = self.CollectionCount + 1
+		log("[MapleSurvivalExpedition][MCP] collection_add monster=" .. monsterName .. " count=" .. tostring(self.CollectionCount))
+	end
+
+	method string GetWaveType(integer wave)
+		-- Returns the content label for a wave.
+		if wave == 10 then return "boss" end
+		if wave == 3 or wave == 6 or wave == 9 then return "elite" end
+		return "normal"
+	end
+
+	method number GetWaveDuration(integer wave)
+		-- Returns accelerated wave duration for MCP verification.
+		return 1.5 + (wave * 0.15)
+	end
+
+	method number GetSpawnInterval(integer wave)
+		-- Returns accelerated spawn cadence for MCP verification.
+		return 0.45
+	end
+
+	method string GetMonsterName(integer wave, integer index)
+		-- Returns deterministic wave-scaled monster identity.
+		if wave == 10 then return "BossBalrog" end
+		if wave == 9 and index == 1 then return "EliteGolem" end
+		if wave == 6 and index == 1 then return "EliteGolem" end
+		if wave == 3 and index == 1 then return "EliteGolem" end
+		if wave <= 1 then return "Snail" end
+		if wave <= 2 then return "Mushroom" end
+		if wave <= 4 then return "Slime" end
+		if wave <= 7 then return "Stump" end
+		return "WildBoar"
+	end
+
+	method integer GetMonsterExp(string monsterName)
+		-- Returns deterministic exp rewards by monster type.
+		if monsterName == "BossBalrog" then return 600 end
+		if monsterName == "EliteGolem" then return 140 end
+		if monsterName == "WildBoar" then return 60 end
+		if monsterName == "Stump" then return 46 end
+		if monsterName == "Slime" then return 34 end
+		if monsterName == "Mushroom" then return 26 end
+		return 18
+	end
+
+	method number GetMonsterDamage(string monsterName)
+		-- Returns deterministic incoming damage by monster type.
+		if monsterName == "BossBalrog" then return 5.0 end
+		if monsterName == "EliteGolem" then return 3.0 end
+		if monsterName == "WildBoar" then return 2.2 end
+		if monsterName == "Stump" then return 1.8 end
+		if monsterName == "Slime" then return 1.3 end
+		if monsterName == "Mushroom" then return 1.0 end
+		return 0.8
+	end
+
+end

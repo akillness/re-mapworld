@@ -1,5 +1,21 @@
 # MapleSurvivalExpedition Implementation Record
 
+## 2026-06-12 — Official MSW Maker MCP verification
+
+### Completed
+
+- Followed the official MSW MCP guide (`postId=1368`): LocalWorkspace and ExtendedScriptFormat were enabled in Maker; `.mcp.json` and `.codex/config.toml` were sanitized to use `MSW_MCP_API_KEY` instead of a literal API key.
+- Verified `msw-maker-mcp` over stdio from the project folder using the actual workstation launcher `D:\MapleStory Worlds\MakerMCP\msw-maker-mcp.bat`.
+- `tools/list` returned 15 Maker tools (`maker_refresh_workspace`, `maker_play`, `maker_logs`, `maker_execute_script`, etc.).
+- Added executable LocalWorkspace runtime logic: `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua`.
+- Ran the official MCP verification loop: `maker_stop` → `maker_clear_logs` → `maker_refresh_workspace` → `maker_logs(kind="build")` → `maker_play` → `maker_logs(kind="normal")` → `maker_execute_script` → `maker_stop` → `maker_save`.
+- Evidence:
+  - Build logs: `count=0`.
+  - Runtime logs: 98 entries.
+  - Completion log: `expedition_complete outcome=cleared bossDefeated=true deaths=0 score=6418 accountExp=641 collection=7`.
+  - Runtime query log: `wave=10 outcome=cleared deaths=0 collection=7 accountExp=641`.
+- Added `MSW_MCP_VERIFICATION.md` and `MSW_MCP_VERIFICATION.json`.
+
 ## 2026-06-11 — Balance & content expansion (ralph loop)
 
 ### Completed

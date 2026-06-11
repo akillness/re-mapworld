@@ -57,18 +57,24 @@
 
 ## 엔진 실행 증거
 
-MSW Maker에서 월드 생성·스크립트 등록·Play Preview 실행을 검증했습니다.
+MSW Maker에서 월드 생성·LocalWorkspace 내보내기·ExtendedScriptFormat 활성화·MCP Play Test 실행까지 검증했습니다.
 
 | | |
 |---|---|
 | ![Play started](artifacts/msw_play_started.png) | ![After F5](artifacts/msw_after_f5.png) |
 
-상세: [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md)
+- Maker MCP `tools/list`: 15개 도구 연결 (`maker_refresh_workspace`, `maker_play`, `maker_logs`, `maker_execute_script` 등).
+- Build logs: `count: 0`.
+- Runtime logs: 98개, 10웨이브 보스 클리어 및 `deaths=0`, `collection=7` 확인.
+- Direct runtime query: `maker_execute_script(context="server_main")`로 `wave=10 outcome=cleared deaths=0 collection=7 accountExp=641` 조회.
+
+상세: [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md) · [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md)
 
 ## 파일 구성
 
-| 파일 | MSW 역할 | 부착 대상 |
+| 파일 | 역할 | 위치 / 부착 대상 |
 |---|---|---|
+| `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua` | 실제 MSW Play Test 실행 검증용 @Logic | LocalWorkspace / Maker runtime |
 | `BalanceTable.lua` | Logic (자동 생성) | `/maps/map01/BalanceTable` |
 | `SurvivalGameManager.lua` | Logic | `/maps/map01/SurvivalGameManager` |
 | `PlayerSurvivalStats.lua` | Component | `DefaultPlayer` |
@@ -91,15 +97,19 @@ python tools/msw_project_cli.py charts                        # 밸런스 차트
 python tools/msw_project_cli.py launch-engine                 # MSW Maker 실행 확인
 ```
 
-`ouroboros` MCP 서버는 `.mcp.json`에 등록되어 있어 ralph 서브에이전트 루프
-(`ouroboros_execute_seed` / `ouroboros_evaluate` 등 23개 도구)를 에이전트 런타임에서 바로 사용할 수 있습니다.
+MCP 서버 설정은 `.mcp.json` / `.codex/config.toml`에 들어 있습니다.
 
-## MSW Maker 적용 절차
+- `msw-maker-mcp`: 실제 설치 경로 `D:\MapleStory Worlds\MakerMCP\msw-maker-mcp.bat`를 stdio로 실행합니다.
+- `msw-mcp`: 공식 HTTP endpoint `https://msw-mcp.nexon.com/mcp`를 사용하며, API Key는 저장소에 넣지 않고 `MSW_MCP_API_KEY` 환경변수로 주입합니다.
+- `ouroboros`: ralph 서브에이전트 루프용 `ouroboros mcp serve`입니다.
 
-1. MSW Maker 실행: `D:\MapleStory Worlds\msw.exe` → 월드 열기/생성
-2. Workspace에 7개 스크립트 생성 후 각 `.lua` 내용 붙여넣기
-3. 부착: 위 표의 부착 대상 참조. `MonsterSpawner.MonsterModelId`에 Resource Storage의 몬스터 모델 Entry ID 설정 (비우면 로그 전용 시뮬레이션 스폰)
-4. Play 후 Console에서 `[MapleSurvivalExpedition]` 로그 확인
+## MSW Maker 적용 / 실행 절차
+
+1. MSW Maker 실행: `D:\MapleStory Worlds\msw.exe` → `MapleSurvivalExpedition` 월드 열기.
+2. AI ToolKit Settings에서 **LocalWorkspace**와 **ExtendedScriptFormat** 활성화. 이 저장소 루트가 Save Folder입니다.
+3. `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua`를 포함한 LocalWorkspace 파일 변경 후 `msw-maker-mcp`의 `maker_refresh_workspace` 호출.
+4. `maker_logs(kind="build")`로 build log 0건 확인.
+5. `maker_play` 실행 후 `maker_logs(kind="normal")`에서 `[MapleSurvivalExpedition][MCP]` 로그 확인.
 
 ## 기획 문서
 

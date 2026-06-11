@@ -2,9 +2,27 @@
   "mcpServers": {
     "ouroboros": {
       "command": "ouroboros",
-      "args": ["mcp", "serve"],
+      "args": [
+        "mcp",
+        "serve"
+      ],
       "env": {
         "OUROBOROS_PROJECT_ROOT": "C:/Users/bangg/MapleSurvivalExpedition"
+      }
+    },
+    "msw-maker-mcp": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "call",
+        "D:\\MapleStory Worlds\\MakerMCP\\msw-maker-mcp.bat"
+      ]
+    },
+    "msw-mcp": {
+      "type": "http",
+      "url": "https://msw-mcp.nexon.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MSW_MCP_API_KEY}"
       }
     }
   }

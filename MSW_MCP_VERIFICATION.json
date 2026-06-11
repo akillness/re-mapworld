@@ -1,0 +1,82 @@
+{
+  "generated": "2026-06-12",
+  "tooling": {
+    "server": "msw-maker-mcp",
+    "transport": "stdio",
+    "tools_available": 15,
+    "tools": [
+      "maker_stop",
+      "maker_play",
+      "maker_refresh_workspace",
+      "maker_logs",
+      "maker_clear_logs",
+      "maker_screenshot",
+      "maker_save",
+      "maker_get_current_map",
+      "maker_get_world_id",
+      "maker_list_maplestory_maps",
+      "maker_get_context_keys",
+      "maker_execute_script",
+      "maker_import_maplestory_map",
+      "maker_mouse_input",
+      "maker_keyboard_input"
+    ],
+    "contexts": {
+      "status": "ok",
+      "count": 2,
+      "contexts": [
+        "server_main",
+        "client"
+      ]
+    }
+  },
+  "build_logs": {
+    "status": "ok",
+    "kind": "build",
+    "count": 0,
+    "logs": []
+  },
+  "runtime_checks": {
+    "runtime_start": true,
+    "wave_10_started": true,
+    "boss_forecast": true,
+    "expedition_complete": true,
+    "zero_deaths": true,
+    "collection_7": true
+  },
+  "runtime_log_count": 98,
+  "runtime_tail": [
+    "[MapleSurvivalExpedition][MCP] wave_start wave=9 type=elite duration=2.85",
+    "[MapleSurvivalExpedition][MCP] elite forecast: EliteGolem will appear on wave 9",
+    "[MapleSurvivalExpedition][MCP] level_up level=11 score=1838",
+    "[MapleSurvivalExpedition][MCP] defeat monster=WildBoar wave=9 score=1838 health=180 risk=7",
+    "[MapleSurvivalExpedition][MCP] defeat monster=EliteGolem wave=9 score=1978 health=176 risk=23",
+    "[MapleSurvivalExpedition][MCP] defeat monster=WildBoar wave=9 score=2038 health=174 risk=39",
+    "[MapleSurvivalExpedition][MCP] defeat monster=WildBoar wave=9 score=2098 health=171 risk=55",
+    "[MapleSurvivalExpedition][MCP] level_up level=12 score=2158",
+    "[MapleSurvivalExpedition][MCP] defeat monster=WildBoar wave=9 score=2158 health=180 risk=71",
+    "[MapleSurvivalExpedition][MCP] defeat monster=WildBoar wave=9 score=2218 health=176 risk=87",
+    "[MapleSurvivalExpedition][MCP] wave_clear wave=9 kills=6 health=176",
+    "[MapleSurvivalExpedition][MCP] wave_start wave=10 type=boss duration=3.0",
+    "[MapleSurvivalExpedition][MCP] boss forecast: BossBalrog is entering wave 10",
+    "[MapleSurvivalExpedition][MCP] collection_add monster=BossBalrog count=7",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=2818 health=174 risk=7",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=3418 health=169 risk=22",
+    "[MapleSurvivalExpedition][MCP] level_up level=13 score=4018",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=4018 health=180 risk=37",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=4618 health=173 risk=52",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=5218 health=166 risk=68",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=5818 health=159 risk=83",
+    "[MapleSurvivalExpedition][MCP] level_up level=14 score=6418",
+    "[MapleSurvivalExpedition][MCP] defeat monster=BossBalrog wave=10 score=6418 health=180 risk=98",
+    "[MapleSurvivalExpedition][MCP] wave_clear wave=10 kills=7 health=180",
+    "[MapleSurvivalExpedition][MCP] expedition_complete outcome=cleared bossDefeated=true deaths=0 score=6418 accountExp=641 collection=7"
+  ],
+  "execute_script": {
+    "context": "server_main",
+    "dispatched": true,
+    "query_logs": [
+      "[MapleSurvivalExpedition][MCP_QUERY] wave=10 outcome=cleared deaths=0 collection=7 accountExp=641"
+    ]
+  }
+}
