@@ -1,12 +1,17 @@
-goal: "Verify the MSW Lua scripts and generate Review_Report.md"
+goal: "Deliver MapleSurvivalExpedition as an MSW-ready survival-expedition project: scripts implemented, engine run verified, evidence reported, repository pushed"
 constraints:
-  - "Check syntax and logic"
-  - "Create markdown report"
+  - "All gameplay scripts are MapleStory Worlds component/logic Lua (PlayerSurvivalStats, MonsterSpawner, MonsterAgent, SurvivalGameManager, SurvivalHudBridge)"
+  - "All verification goes through tools/msw_project_cli.py; no manual-only claims"
+  - "Engine integration uses MSW Maker at D:/MapleStory Worlds/msw.exe; MakerMCP injection only when the editor bridge exposes tools, otherwise GUI execution with screenshot evidence"
 acceptance_criteria:
-  - "Review_Report.md is generated and contains analysis"
+  - "python tools/msw_project_cli.py validate exits 0 (script validation PASS)"
+  - "python tools/msw_project_cli.py simulate --seconds 420 reports ok:true, game.complete:true, player.deaths:0"
+  - "python tools/msw_project_cli.py launch-engine reports running_after_launch:true"
+  - "ENGINE_RUN_REPORT.md exists with validation, simulation JSON, Maker launch, and Play preview evidence (artifacts/msw_play_started.png, artifacts/msw_after_f5.png)"
+  - "git ls-remote origin master hash equals local master hash (push verified)"
 ontology_schema:
-  name: "VerificationTask"
-  description: "Verification task ontology"
+  name: "MswSurvivalDelivery"
+  description: "Spec-to-verified-artifact delivery for an MSW survival expedition prototype"
 metadata:
   author: "agent"
-  version: "1.0"
+  version: "1.1"
