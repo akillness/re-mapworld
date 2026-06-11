@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ouroboros": {
+      "command": "ouroboros",
+      "args": ["mcp", "serve"],
+      "env": {
+        "OUROBOROS_PROJECT_ROOT": "C:/Users/bangg/MapleSurvivalExpedition"
+      }
+    }
+  }
+}

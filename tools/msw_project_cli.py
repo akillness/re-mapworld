@@ -26,6 +26,8 @@ REQUIRED_SCRIPTS = [
     "MonsterAgent.lua",
     "SurvivalGameManager.lua",
     "SurvivalHudBridge.lua",
+    "MonsterCollection.lua",
+    "BalanceTable.lua",
 ]
 
 
@@ -385,6 +387,250 @@ def write_run_report() -> int:
     return 0 if validate_code == 0 and simulation_completed.returncode == 0 and engine_completed.returncode == 0 else 1
 
 
+def expedition(policy: str, seed: int, json_output: bool = False) -> int:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import survival_sim
+
+    result = survival_sim.run_session(survival_sim.load_balance(), policy, seed)
+    payload = {
+        "ok": result.ok,
+        "policy": result.policy,
+        "seed": result.seed,
+        "outcome": result.outcome,
+        "seconds": result.seconds,
+        "final_wave": result.final_wave,
+        "boss_defeated": result.boss_defeated,
+        "deaths": result.deaths,
+        "score": result.score,
+        "level": result.level,
+        "kills": result.kills,
+        "potions_used": result.potions_used,
+        "food_used": result.food_used,
+        "min_health_ratio": round(result.min_health_ratio, 3),
+        "collection": result.collection,
+        "account_exp": result.account_exp,
+        "damage_per_wave": {str(k): round(v, 1) for k, v in sorted(result.damage_per_wave.items())},
+        "events_tail": result.events[-10:],
+    }
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if result.ok else 1
+
+
+def evaluate_cmd(json_output: bool = False) -> int:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import survival_sim
+
+    ev = survival_sim.evaluate(survival_sim.load_balance())
+    payload = {k: v for k, v in ev.items() if k != "runs"}
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if ev["all_passed"] else 1
+
+
+def balance_loop_cmd(iterations: int) -> int:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import survival_sim
+
+    summary = survival_sim.balance_loop(iterations=iterations)
+    log_path = ROOT / "balance_loop_log.json"
+    log_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    lines = [
+        "# Balance Loop Report (ralph: implement -> verify -> improve)",
+        "",
+        f"Generated: 2026-06-11. Iterations: {summary['iterations']} (baseline + improvements).",
+        "",
+        f"- Final acceptance criteria: {summary['final_passed']}/{summary['final_total']} passed"
+        f" ({'ALL PASS' if summary['all_passed'] else 'INCOMPLETE'})",
+        f"- Final fitness (hard criteria + soft tuning objective): {summary['final_fitness']}",
+        "",
+        "## Final criteria",
+        "",
+        "| Criterion | Result |",
+        "|---|---|",
+    ]
+    for name, ok in summary["final_criteria"].items():
+        lines.append(f"| {name} | {'PASS' if ok else 'FAIL'} |")
+    lines += [
+        "",
+        "## Final observed metrics",
+        "",
+        "```json",
+        json.dumps(summary["final_observed"], ensure_ascii=False, indent=2),
+        "```",
+        "",
+        "## Iteration log",
+        "",
+        "| # | Phase | Passed | Fitness | Accepted | Action |",
+        "|--:|---|--:|--:|---|---|",
+    ]
+    for entry in summary["log"]:
+        lines.append(
+            f"| {entry['iteration']} | {entry['phase']} | {entry['passed']}/{entry['total']}"
+            f" | {entry['fitness']} | {'yes' if entry['accepted'] else 'no'} | {entry['action']} |"
+        )
+    lines.append("")
+    (ROOT / "BALANCE_LOOP_REPORT.md").write_text("\n".join(lines), encoding="utf-8")
+
+    print(json.dumps({
+        "iterations": summary["iterations"],
+        "final_passed": summary["final_passed"],
+        "final_total": summary["final_total"],
+        "all_passed": summary["all_passed"],
+        "final_fitness": summary["final_fitness"],
+        "report": str(ROOT / "BALANCE_LOOP_REPORT.md"),
+        "log": str(log_path),
+    }, ensure_ascii=False, indent=2))
+    return 0 if summary["all_passed"] else 1
+
+
+def gen_lua() -> int:
+    """Regenerate BalanceTable.lua from balance_table.json (data -> MSW script)."""
+    balance = json.loads((ROOT / "balance_table.json").read_text(encoding="utf-8"))
+    s = balance["session"]
+    p = balance["player"]
+    monster_lines = []
+    for name, spec in balance["monsters"].items():
+        monster_lines.append(
+            f'        if monsterName == "{name}" then'
+            f' return {spec["hp"]}, {spec["attack"]}, {spec["exp"]} end'
+        )
+    wave_lines = []
+    for w in balance["waves"]:
+        wave_lines.append(
+            f'        if wave == {w["wave"]} then return "{w["type"]}", {w["spawn_interval"]}, {w["max_alive"]} end'
+        )
+    text = f"""-- BalanceTable
+-- MapleStory Worlds Logic: generated from balance_table.json by tools/msw_project_cli.py gen-lua.
+-- Data-driven balance per docs/join_develop.md. Do not edit by hand; edit balance_table.json.
+
+Property:
+    [Sync]
+    integer TargetWave = {s["target_wave"]}
+    [Sync]
+    number BaseWaveDuration = {s["base_wave_duration"]}
+    [Sync]
+    number WaveDurationPerWave = {s["wave_duration_per_wave"]}
+    [Sync]
+    number RestDuration = {s["rest_duration"]}
+    [Sync]
+    number RestHealRatio = {s["rest_heal_ratio"]}
+    [Sync]
+    number PlayerMaxHealth = {p["max_health"]}
+    [Sync]
+    number PlayerBaseAttack = {p["base_attack"]}
+    [Sync]
+    number PlayerAttackPerLevel = {p["attack_per_level"]}
+    [Sync]
+    number PotionHeal = {p["potion_heal"]}
+    [Sync]
+    number FoodRestore = {p["food_restore"]}
+    [Sync]
+    number RiskAttackScale = {balance["risk"]["attack_scale_at_full_risk"]}
+    [Sync]
+    number RiskHpScale = {balance["risk"]["hp_scale_at_full_risk"]}
+    [Sync]
+    number PotionDropChance = {balance["drops"]["potion_chance"]}
+    [Sync]
+    number FoodDropChance = {balance["drops"]["food_chance"]}
+    [Sync]
+    number CollectionAttackBonus = {balance["collection"]["attack_bonus_per_entry"]}
+    [Sync]
+    number CollectionHealthBonus = {balance["collection"]["health_bonus_per_entry"]}
+
+Method:
+    [Server Only]
+    void OnBeginPlay()
+    {{
+        log("[MapleSurvivalExpedition] BalanceTable loaded. TargetWave=" .. tostring(self.TargetWave))
+    }}
+
+    [Server Only]
+    number GetWaveDuration(integer wave)
+    {{
+        return self.BaseWaveDuration + (wave * self.WaveDurationPerWave)
+    }}
+
+    [Server Only]
+    string GetWaveType(integer wave)
+    {{
+        local waveType, interval, maxAlive = self:GetWaveConfig(wave)
+        return waveType
+    }}
+
+    [Server Only]
+    string,number,integer GetWaveConfig(integer wave)
+    {{
+{chr(10).join(wave_lines)}
+        return "normal", 4.0, 8
+    }}
+
+    [Server Only]
+    number,number,integer GetMonsterStats(string monsterName)
+    {{
+{chr(10).join(monster_lines)}
+        return 30, 3, 20
+    }}
+"""
+    (ROOT / "BalanceTable.lua").write_text(text, encoding="utf-8")
+    print(str(ROOT / "BalanceTable.lua"))
+    return 0
+
+
+def charts() -> int:
+    """Render balance loop progression and wave difficulty charts to artifacts/."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import survival_sim
+
+    artifacts = ROOT / "artifacts"
+    artifacts.mkdir(exist_ok=True)
+
+    log_path = ROOT / "balance_loop_log.json"
+    if log_path.exists():
+        summary = json.loads(log_path.read_text(encoding="utf-8"))
+        iters = [e["iteration"] for e in summary["log"]]
+        fitness = [e["fitness"] for e in summary["log"]]
+        passed = [e["passed"] for e in summary["log"]]
+        fig, ax1 = plt.subplots(figsize=(9, 4.5))
+        ax1.plot(iters, fitness, color="#e8772e", linewidth=2, label="fitness")
+        ax1.set_xlabel("iteration")
+        ax1.set_ylabel("fitness (criteria + soft objective)", color="#e8772e")
+        ax2 = ax1.twinx()
+        ax2.step(iters, passed, where="mid", color="#3f72af", alpha=0.6, label="criteria passed")
+        ax2.set_ylabel("acceptance criteria passed", color="#3f72af")
+        ax2.set_ylim(0, summary["final_total"] + 0.5)
+        ax1.set_title("Balance loop: implement -> verify -> improve")
+        fig.tight_layout()
+        fig.savefig(artifacts / "balance_progression.png", dpi=120)
+        plt.close(fig)
+
+    balance = survival_sim.load_balance()
+    result = survival_sim.run_session(balance, "standard", 11)
+    waves = sorted(result.damage_per_wave)
+    dmg = [result.damage_per_wave[w] for w in waves]
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    colors = ["#c0392b" if balance["waves"][w - 1]["type"] == "boss"
+              else "#e67e22" if balance["waves"][w - 1]["type"] == "elite"
+              else "#3f72af" for w in waves]
+    ax.bar([str(w) for w in waves], dmg, color=colors)
+    ax.set_xlabel("wave")
+    ax.set_ylabel("damage taken by player")
+    ax.set_title("Wave difficulty curve (standard policy, seed 11) - blue normal / orange elite / red boss")
+    fig.tight_layout()
+    fig.savefig(artifacts / "wave_difficulty.png", dpi=120)
+    plt.close(fig)
+
+    print(json.dumps({
+        "ok": True,
+        "charts": ["artifacts/balance_progression.png", "artifacts/wave_difficulty.png"],
+    }, indent=2))
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="MapleSurvivalExpedition project CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -404,6 +650,20 @@ def main() -> int:
 
     sub.add_parser("write-run-report", help="write ENGINE_RUN_REPORT.md")
 
+    expedition_parser = sub.add_parser("expedition", help="run expanded expedition session simulation")
+    expedition_parser.add_argument("--policy", choices=["standard", "cautious", "greedy"], default="standard")
+    expedition_parser.add_argument("--seed", type=int, default=11)
+    expedition_parser.add_argument("--json", action="store_true")
+
+    evaluate_parser = sub.add_parser("evaluate", help="evaluate acceptance criteria across policies")
+    evaluate_parser.add_argument("--json", action="store_true")
+
+    loop_parser = sub.add_parser("balance-loop", help="ralph loop: implement -> verify -> improve balance")
+    loop_parser.add_argument("--iterations", type=int, default=60)
+
+    sub.add_parser("gen-lua", help="regenerate BalanceTable.lua from balance_table.json")
+    sub.add_parser("charts", help="render balance charts to artifacts/")
+
     args = parser.parse_args()
     if args.command == "validate":
         return validate_scripts(json_output=args.json)
@@ -415,6 +675,16 @@ def main() -> int:
         return launch_engine(json_output=args.json)
     if args.command == "write-run-report":
         return write_run_report()
+    if args.command == "expedition":
+        return expedition(args.policy, args.seed, json_output=args.json)
+    if args.command == "evaluate":
+        return evaluate_cmd(json_output=args.json)
+    if args.command == "balance-loop":
+        return balance_loop_cmd(args.iterations)
+    if args.command == "gen-lua":
+        return gen_lua()
+    if args.command == "charts":
+        return charts()
     return 1
 
 

@@ -1,5 +1,7 @@
 -- SurvivalGameManager
--- MapleStory Worlds Logic: expedition wave pacing, risk, scoring, and completion state.
+-- MapleStory Worlds Logic: expedition wave pacing, wave types (normal/elite/boss),
+-- risk gauge, escape decision window, scoring, and session settlement.
+-- Balance values come from the BalanceTable logic (generated from balance_table.json).
 
 Property:
     [Sync]
@@ -9,24 +11,40 @@ Property:
     [Sync]
     number RestTimer = 0.0
     [Sync]
-    number BaseWaveDuration = 45.0
-    [Sync]
-    number RestDuration = 10.0
-    [Sync]
     number RiskPercent = 0.0
     [Sync]
-    integer TargetWave = 5
+    integer TargetWave = 10
+    [Sync]
+    string CurrentWaveType = "normal"
     [Sync]
     boolean IsWaveActive = false
     [Sync]
+    boolean IsRestPhase = false
+    [Sync]
+    boolean EscapeWindowOpen = false
+    [Sync]
     boolean IsComplete = false
+    [Sync]
+    boolean BossDefeated = false
+    [Sync]
+    string SessionOutcome = "running"
+    [Sync]
+    integer AccountExp = 0
+    [None]
+    number AccountExpPerScore = 0.1
+    [None]
+    number WipeKeepRatio = 0.4
 
 Method:
     [Server Only]
     void OnBeginPlay()
     {
+        local balance = _EntityService:GetEntityByPath("/maps/map01/BalanceTable").BalanceTable
+        self.TargetWave = balance.TargetWave
         self.CurrentWave = 1
         self.IsComplete = false
+        self.BossDefeated = false
+        self.SessionOutcome = "running"
         self:StartWave()
     }
 
@@ -47,12 +65,18 @@ Method:
                 self.RiskPercent = 100
             end
 
-            if self.WaveTimer <= 0 then
+            if self.CurrentWaveType == "boss" then
+                if self.BossDefeated then
+                    self:EndWave()
+                end
+            elseif self.WaveTimer <= 0 then
                 self:EndWave()
             end
-        else
+        elseif self.IsRestPhase then
             self.RestTimer = self.RestTimer - delta
             if self.RestTimer <= 0 then
+                self.EscapeWindowOpen = false
+                self.IsRestPhase = false
                 self.CurrentWave = self.CurrentWave + 1
                 self:StartWave()
             end
@@ -62,21 +86,26 @@ Method:
     [Server Only]
     number GetWaveDuration()
     {
-        return self.BaseWaveDuration + (self.CurrentWave * 10.0)
+        local balance = _EntityService:GetEntityByPath("/maps/map01/BalanceTable").BalanceTable
+        return balance:GetWaveDuration(self.CurrentWave)
     }
 
     [Server Only]
     void StartWave()
     {
         if self.CurrentWave > self.TargetWave then
-            self:CompleteExpedition()
+            self:CompleteExpedition("cleared")
             return
         end
 
+        local balance = _EntityService:GetEntityByPath("/maps/map01/BalanceTable").BalanceTable
+        local waveType, spawnInterval, maxAlive = balance:GetWaveConfig(self.CurrentWave)
+        self.CurrentWaveType = waveType
         self.IsWaveActive = true
+        self.IsRestPhase = false
         self.RiskPercent = 0.0
         self.WaveTimer = self:GetWaveDuration()
-        log("[MapleSurvivalExpedition] Wave " .. tostring(self.CurrentWave) .. " started. Duration=" .. tostring(self.WaveTimer))
+        log("[MapleSurvivalExpedition] Wave " .. tostring(self.CurrentWave) .. " (" .. waveType .. ") started. Duration=" .. tostring(self.WaveTimer))
     }
 
     [Server Only]
@@ -86,19 +115,56 @@ Method:
         self.RiskPercent = 100.0
 
         if self.CurrentWave >= self.TargetWave then
-            self:CompleteExpedition()
+            self:CompleteExpedition("cleared")
             return
         end
 
-        self.RestTimer = self.RestDuration
-        log("[MapleSurvivalExpedition] Wave " .. tostring(self.CurrentWave) .. " cleared. Rest=" .. tostring(self.RestTimer))
+        local balance = _EntityService:GetEntityByPath("/maps/map01/BalanceTable").BalanceTable
+        self.IsRestPhase = true
+        self.EscapeWindowOpen = true
+        self.RestTimer = balance.RestDuration
+        log("[MapleSurvivalExpedition] Wave " .. tostring(self.CurrentWave) .. " cleared. Escape window open for " .. tostring(self.RestTimer) .. "s")
     }
 
     [Server Only]
-    void CompleteExpedition()
+    void NotifyBossDefeated()
+    {
+        self.BossDefeated = true
+        log("[MapleSurvivalExpedition] Boss defeated!")
+    }
+
+    [Server Only]
+    void RequestEscape(integer playerScore)
+    {
+        if self.EscapeWindowOpen == false then
+            return
+        end
+        self:Settle(playerScore, 1.0)
+        self:CompleteExpedition("escaped")
+    }
+
+    [Server Only]
+    void NotifyPlayerWiped(integer playerScore)
+    {
+        self:Settle(playerScore, self.WipeKeepRatio)
+        self:CompleteExpedition("wiped")
+    }
+
+    [Server Only]
+    void Settle(integer playerScore, number keepRatio)
+    {
+        self.AccountExp = self.AccountExp + math.floor(playerScore * keepRatio * self.AccountExpPerScore)
+        log("[MapleSurvivalExpedition] Settlement: score=" .. tostring(playerScore) .. " accountExp=" .. tostring(self.AccountExp))
+    }
+
+    [Server Only]
+    void CompleteExpedition(string outcome)
     {
         self.IsComplete = true
         self.IsWaveActive = false
+        self.IsRestPhase = false
+        self.EscapeWindowOpen = false
         self.RiskPercent = 100.0
-        log("[MapleSurvivalExpedition] Expedition complete. All target waves cleared.")
+        self.SessionOutcome = outcome
+        log("[MapleSurvivalExpedition] Expedition finished. Outcome=" .. outcome)
     }

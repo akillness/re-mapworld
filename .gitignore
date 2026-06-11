@@ -5,3 +5,6 @@ __pycache__/
 .env
 .venv/
 .ouroboros/
+docs/maple.zip
+docs/resource/
+docs/MSWRemake/

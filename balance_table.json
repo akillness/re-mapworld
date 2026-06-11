@@ -1,0 +1,193 @@
+{
+  "version": 2,
+  "session": {
+    "target_wave": 10,
+    "base_wave_duration": 37.0647,
+    "wave_duration_per_wave": 2.6599,
+    "rest_duration": 8.0,
+    "min_session_seconds": 300,
+    "max_session_seconds": 720,
+    "rest_heal_ratio": 0.0815
+  },
+  "player": {
+    "max_health": 102.9937,
+    "max_hunger": 100.0,
+    "hunger_drain": 0.4,
+    "starvation_damage": 2.0,
+    "base_attack": 20.8959,
+    "attack_per_level": 2.3328,
+    "exp_per_level_factor": 100,
+    "level_up_health_bonus": 18.0,
+    "level_up_hunger_bonus": 5.0,
+    "engagement_cap": 3,
+    "potion_heal": 89.0953,
+    "food_restore": 30.0,
+    "potion_use_threshold": 0.55,
+    "food_use_threshold": 0.45
+  },
+  "risk": {
+    "attack_scale_at_full_risk": 0.7092,
+    "hp_scale_at_full_risk": 0.25
+  },
+  "drops": {
+    "potion_chance": 0.5,
+    "food_chance": 0.3839,
+    "starting_potions": 2,
+    "starting_food": 2
+  },
+  "monsters": {
+    "Snail": {
+      "hp": 28,
+      "attack": 2.2,
+      "exp": 18,
+      "tier": "normal"
+    },
+    "Mushroom": {
+      "hp": 42,
+      "attack": 3.2,
+      "exp": 26,
+      "tier": "normal"
+    },
+    "Slime": {
+      "hp": 58,
+      "attack": 4.2,
+      "exp": 34,
+      "tier": "normal"
+    },
+    "Stump": {
+      "hp": 80,
+      "attack": 5.5,
+      "exp": 46,
+      "tier": "normal"
+    },
+    "WildBoar": {
+      "hp": 105,
+      "attack": 7.0,
+      "exp": 60,
+      "tier": "normal"
+    },
+    "EliteGolem": {
+      "hp": 240,
+      "attack": 9.2995,
+      "exp": 140,
+      "tier": "elite"
+    },
+    "BossBalrog": {
+      "hp": 1286.343,
+      "attack": 15.5017,
+      "exp": 600,
+      "tier": "boss"
+    }
+  },
+  "waves": [
+    {
+      "wave": 1,
+      "type": "normal",
+      "pool": [
+        "Snail"
+      ],
+      "spawn_interval": 4.5,
+      "max_alive": 6
+    },
+    {
+      "wave": 2,
+      "type": "normal",
+      "pool": [
+        "Snail",
+        "Mushroom"
+      ],
+      "spawn_interval": 4.2,
+      "max_alive": 7
+    },
+    {
+      "wave": 3,
+      "type": "elite",
+      "pool": [
+        "Mushroom",
+        "Slime"
+      ],
+      "elite": "EliteGolem",
+      "spawn_interval": 4.0,
+      "max_alive": 8
+    },
+    {
+      "wave": 4,
+      "type": "normal",
+      "pool": [
+        "Slime",
+        "Stump"
+      ],
+      "spawn_interval": 3.8,
+      "max_alive": 9
+    },
+    {
+      "wave": 5,
+      "type": "normal",
+      "pool": [
+        "Slime",
+        "Stump"
+      ],
+      "spawn_interval": 3.6,
+      "max_alive": 10
+    },
+    {
+      "wave": 6,
+      "type": "elite",
+      "pool": [
+        "Stump",
+        "WildBoar"
+      ],
+      "elite": "EliteGolem",
+      "spawn_interval": 3.4,
+      "max_alive": 11
+    },
+    {
+      "wave": 7,
+      "type": "normal",
+      "pool": [
+        "Stump",
+        "WildBoar"
+      ],
+      "spawn_interval": 3.2,
+      "max_alive": 12
+    },
+    {
+      "wave": 8,
+      "type": "normal",
+      "pool": [
+        "WildBoar"
+      ],
+      "spawn_interval": 3.0,
+      "max_alive": 13
+    },
+    {
+      "wave": 9,
+      "type": "elite",
+      "pool": [
+        "WildBoar"
+      ],
+      "elite": "EliteGolem",
+      "spawn_interval": 2.8,
+      "max_alive": 14
+    },
+    {
+      "wave": 10,
+      "type": "boss",
+      "pool": [
+        "WildBoar"
+      ],
+      "boss": "BossBalrog",
+      "spawn_interval": 3.5,
+      "max_alive": 6
+    }
+  ],
+  "collection": {
+    "attack_bonus_per_entry": 0.03,
+    "health_bonus_per_entry": 6.0
+  },
+  "meta": {
+    "account_exp_per_score": 0.1,
+    "escape_keep_ratio": 1.0,
+    "wipe_keep_ratio": 0.4
+  }
+}
