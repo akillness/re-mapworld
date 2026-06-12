@@ -29,6 +29,62 @@ REQUIRED_SCRIPTS = [
     "MonsterCollection.lua",
     "BalanceTable.lua",
 ]
+RESOURCE_PACKETS = {
+    "battle": {
+        "path": "docs/resource/maple-soul-hero/scripts/Battle",
+        "glob": "*.mlua",
+        "sample": "docs/resource/maple-soul-hero/scripts/Battle/Event/WaveStartEvent.mlua",
+        "purpose": "wave start, monster defeat, boss, HP/MP/SP combat events",
+    },
+    "stage": {
+        "path": "docs/resource/maple-soul-hero/scripts/Stage",
+        "glob": "*.mlua",
+        "sample": "docs/resource/maple-soul-hero/scripts/Stage/Logic/StageLogic.mlua",
+        "purpose": "stage entry, start/end events, battle-map transition structure",
+    },
+    "ranking": {
+        "path": "docs/resource/maple-soul-hero/scripts/Ranking",
+        "glob": "*.mlua",
+        "sample": "docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua",
+        "purpose": "season score and account-level ranking UI/logic reference",
+    },
+    "miner_resource_growth": {
+        "path": "docs/resource/miner-simulator/scripts/Components/Player",
+        "glob": "*.mlua",
+        "sample": "docs/resource/miner-simulator/scripts/Components/Player/Accessory/PlayerAccessory.mlua",
+        "purpose": "resource-growth, accessory, pet, and repeat-session progression patterns",
+    },
+    "monster_collection": {
+        "path": "docs/resource/monster-farm/scripts/Collection",
+        "glob": "*.mlua",
+        "sample": "docs/resource/monster-farm/scripts/Collection/CollectionService.mlua",
+        "purpose": "collection progress, reward claim, monster-book UX pattern",
+    },
+    "monster_book": {
+        "path": "docs/resource/monster-farm/scripts/Book",
+        "glob": "*.mlua",
+        "sample": "docs/resource/monster-farm/scripts/Book/Logic/BookService.mlua",
+        "purpose": "book/reward button flow for long-term collection goals",
+    },
+    "monster_datasets": {
+        "path": "docs/resource/monster-farm/datasets/DataSet/Monster",
+        "glob": "*.csv",
+        "sample": "docs/resource/monster-farm/datasets/DataSet/Monster/MonsterDataSet_Base.csv",
+        "purpose": "monster base, UI, fusion, passive, and random-talk data references",
+    },
+    "ui": {
+        "path": "docs/resource/maple-soul-hero/ui",
+        "glob": "*.ui",
+        "sample": "docs/resource/maple-soul-hero/ui/BattleGroup.ui",
+        "purpose": "battle/ranking/status UI layout source packet",
+    },
+    "maps": {
+        "path": "docs/resource/miner-simulator/maps",
+        "glob": "*.map",
+        "sample": "docs/resource/miner-simulator/maps/Mine1_1.map",
+        "purpose": "multi-stage map resource packet for expedition-area expansion",
+    },
+}
 
 
 @dataclass
@@ -200,6 +256,70 @@ def validate_scripts(json_output: bool = False) -> int:
         for issue in issues:
             print(f"[{issue.level.upper()}] {issue.file}: {issue.message}")
     return 0 if report["ok"] else 1
+def resource_linkage_cmd(json_output: bool = False) -> int:
+    """Verify that the playable MSW loop is linked to real planning/resource packets."""
+    packets: dict[str, dict[str, object]] = {}
+    missing: list[str] = []
+    for name, spec in RESOURCE_PACKETS.items():
+        packet_path = ROOT / str(spec["path"])
+        sample_path = ROOT / str(spec["sample"])
+        files = sorted(packet_path.rglob(str(spec["glob"]))) if packet_path.exists() else []
+        packets[name] = {
+            "path": str(spec["path"]),
+            "purpose": spec["purpose"],
+            "glob": spec["glob"],
+            "count": len(files),
+            "exists": packet_path.exists(),
+            "sample": str(spec["sample"]),
+            "sample_exists": sample_path.exists(),
+        }
+        if not packet_path.exists() or len(files) == 0 or not sample_path.exists():
+            missing.append(name)
+
+    map_path = ROOT / "map" / "map01.map"
+    manager_path = ROOT / "RootDesk" / "MyDesk" / "MapleSurvivalExpedition" / "SurvivalGameManager.mlua"
+    catalog_path = ROOT / "RootDesk" / "MyDesk" / "MapleSurvivalExpedition" / "ExpeditionResourceCatalog.mlua"
+    map_text = read_text(map_path) if map_path.exists() else ""
+    manager_text = read_text(manager_path) if manager_path.exists() else ""
+    catalog_text = read_text(catalog_path) if catalog_path.exists() else ""
+    required_catalog_markers = [
+        "BattleSource",
+        "StageSource",
+        "RankingSource",
+        "MinerSource",
+        "CollectionSource",
+        "MonsterBookSource",
+        "MonsterDatasetSource",
+        "UiSource",
+        "MapSource",
+        "battle,stage,ranking,miner,collection,book,dataset,ui,map",
+    ]
+
+    checks = {
+        "catalog_script_exists": catalog_path.exists(),
+        "catalog_attached_to_map": "script.ExpeditionResourceCatalog" in map_text,
+        "manager_requires_catalog": "GetResourceCatalog" in manager_text and "missing_resource_catalog" in manager_text,
+        "manager_logs_wave_routes": "[MapleSurvivalExpedition][RESOURCE] wave_route" in manager_text,
+        "catalog_logs_sources": "[MapleSurvivalExpedition][RESOURCE] source" in catalog_text,
+        "catalog_names_required_packets": all(marker in catalog_text for marker in required_catalog_markers),
+        "all_packets_present": len(missing) == 0,
+    }
+    report = {
+        "ok": all(checks.values()),
+        "packets": packets,
+        "missing": missing,
+        "checks": checks,
+    }
+    if json_output:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    else:
+        print("MSW resource linkage:", "PASS" if report["ok"] else "FAIL")
+        for name, packet in packets.items():
+            print(f"- {name}: {packet['count']} {packet['glob']} from {packet['path']}")
+        for name, passed in checks.items():
+            print(f"[{'PASS' if passed else 'FAIL'}] {name}")
+    return 0 if report["ok"] else 1
+
 
 
 def simulate(seconds: int, json_output: bool = False) -> int:
@@ -637,6 +757,9 @@ def main() -> int:
 
     validate_parser = sub.add_parser("validate", help="validate MSW script structure")
     validate_parser.add_argument("--json", action="store_true")
+    resource_parser = sub.add_parser("resource-linkage", help="verify docs/resource packets are linked into the playable map")
+    resource_parser.add_argument("--json", action="store_true")
+
 
     simulate_parser = sub.add_parser("simulate", help="run deterministic survival simulation")
     simulate_parser.add_argument("--seconds", type=int, default=420)
@@ -667,6 +790,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "validate":
         return validate_scripts(json_output=args.json)
+    if args.command == "resource-linkage":
+        return resource_linkage_cmd(json_output=args.json)
     if args.command == "simulate":
         return simulate(args.seconds, json_output=args.json)
     if args.command == "maker-status":

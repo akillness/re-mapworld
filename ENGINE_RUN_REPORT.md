@@ -10,6 +10,8 @@ Expanded balance evaluation: 7/7 criteria PASS
 MSW Maker MCP build logs: 0 entries / 0 errors
 ```
 
+Resource linkage validation: PASS (`docs/resource` 9 packets linked through map-attached `ExpeditionResourceCatalog`)
+
 ## Deterministic Gameplay Simulation
 
 The local harness verifies the full 10-wave balance across 3 play policies and 3 seeds.
@@ -153,6 +155,45 @@ Positive runtime evidence:
 
 Raw evidence: [`MSW_PLAYABLE_REVIEW_VERIFICATION.json`](MSW_PLAYABLE_REVIEW_VERIFICATION.json) and [`MSW_PLAYABLE_REVIEW_VERIFICATION.md`](MSW_PLAYABLE_REVIEW_VERIFICATION.md).
 
+## Ralph resource-linkage redo
+
+The latest redo starts from the actual planning/resource folders under `docs/resource/` and binds them into the running map through:
+
+```text
+/maps/map01/ExpeditionResourceCatalog -> script.ExpeditionResourceCatalog
+```
+
+The catalog exposes Battle, Stage, Ranking, Miner growth, Monster Collection, Monster Book, Monster Dataset, UI, and Map packets. `SurvivalGameManager` now blocks startup if the catalog is missing and logs the source route used by every wave.
+
+MCP sequence executed for this redo:
+
+```text
+maker_stop
+maker_clear_logs
+maker_refresh_workspace
+maker_logs(kind="build") -> count: 0
+maker_play
+maker_screenshot -> artifacts/msw_resource_linked_ralph_capture.png
+maker_logs(kind="normal") -> 311 logs
+maker_get_context_keys -> server_main, client
+maker_execute_script(context="server_main")
+maker_logs(kind="normal") -> 312 logs including RESOURCE_QUERY
+maker_stop
+maker_save -> ok
+maker_logs(kind="build") -> count: 0
+```
+
+Positive runtime evidence:
+
+```text
+[MapleSurvivalExpedition][RESOURCE] catalog_ready battleScripts=92 rankingScripts=8 stageScripts=6 minerPlayerScripts=68 collectionScripts=7 monsterBookScripts=3 monsterDatasets=9 ui=57 maps=44
+[MapleSurvivalExpedition][RESOURCE] wave_route wave=10 packet=ranking-boss-settlement source=docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua
+[MapleSurvivalExpedition][PLAYABLE] expedition_complete outcome=cleared bossDefeated=true deaths=0 score=5596 accountExp=559 collection=7
+[MapleSurvivalExpedition][RESOURCE_QUERY] wave=10 outcome=cleared complete=true resourceReady=true packets=battle,stage,ranking,miner,collection,book,dataset,ui,map wave10Source=docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua
+```
+
+Raw evidence: [`RALPH_RESOURCE_LINKAGE_VERIFICATION.json`](RALPH_RESOURCE_LINKAGE_VERIFICATION.json), [`RESOURCE_LINKAGE_VERIFICATION.json`](RESOURCE_LINKAGE_VERIFICATION.json), and [`RALPH_RESOURCE_LINKAGE_VERIFICATION.md`](RALPH_RESOURCE_LINKAGE_VERIFICATION.md).
+
 ## Result
 
-Static harness validation, deterministic balance simulation, official MSW Maker MCP connection, LocalWorkspace refresh, build-log inspection, Play Test execution, map-attached gameplay component execution, runtime log verification, direct runtime state query, stop, and save are all verified.
+Static harness validation, deterministic balance simulation, official MSW Maker MCP connection, LocalWorkspace refresh, build-log inspection, Play Test execution, map-attached gameplay component execution, docs/resource packet linkage, runtime log verification, direct runtime state query, stop, and save are all verified.

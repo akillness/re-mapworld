@@ -464,6 +464,57 @@
           ],
           "@version": 1
         }
+      },
+      {
+        "id": "056d946b-3cb6-4a9e-8dbd-0cdbb81caad3",
+        "path": "/maps/map01/ExpeditionResourceCatalog",
+        "componentNames": "MOD.Core.TransformComponent,script.ExpeditionResourceCatalog",
+        "jsonString": {
+          "name": "ExpeditionResourceCatalog",
+          "path": "/maps/map01/ExpeditionResourceCatalog",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 9,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "056d946b-3cb6-4a9e-8dbd-0cdbb81caad3",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.ExpeditionResourceCatalog",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
       }
     ]
   }

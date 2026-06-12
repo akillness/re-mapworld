@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "packets": {
+    "battle": {
+      "path": "docs/resource/maple-soul-hero/scripts/Battle",
+      "purpose": "wave start, monster defeat, boss, HP/MP/SP combat events",
+      "glob": "*.mlua",
+      "count": 92,
+      "exists": true,
+      "sample": "docs/resource/maple-soul-hero/scripts/Battle/Event/WaveStartEvent.mlua",
+      "sample_exists": true
+    },
+    "stage": {
+      "path": "docs/resource/maple-soul-hero/scripts/Stage",
+      "purpose": "stage entry, start/end events, battle-map transition structure",
+      "glob": "*.mlua",
+      "count": 6,
+      "exists": true,
+      "sample": "docs/resource/maple-soul-hero/scripts/Stage/Logic/StageLogic.mlua",
+      "sample_exists": true
+    },
+    "ranking": {
+      "path": "docs/resource/maple-soul-hero/scripts/Ranking",
+      "purpose": "season score and account-level ranking UI/logic reference",
+      "glob": "*.mlua",
+      "count": 8,
+      "exists": true,
+      "sample": "docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua",
+      "sample_exists": true
+    },
+    "miner_resource_growth": {
+      "path": "docs/resource/miner-simulator/scripts/Components/Player",
+      "purpose": "resource-growth, accessory, pet, and repeat-session progression patterns",
+      "glob": "*.mlua",
+      "count": 68,
+      "exists": true,
+      "sample": "docs/resource/miner-simulator/scripts/Components/Player/Accessory/PlayerAccessory.mlua",
+      "sample_exists": true
+    },
+    "monster_collection": {
+      "path": "docs/resource/monster-farm/scripts/Collection",
+      "purpose": "collection progress, reward claim, monster-book UX pattern",
+      "glob": "*.mlua",
+      "count": 7,
+      "exists": true,
+      "sample": "docs/resource/monster-farm/scripts/Collection/CollectionService.mlua",
+      "sample_exists": true
+    },
+    "monster_book": {
+      "path": "docs/resource/monster-farm/scripts/Book",
+      "purpose": "book/reward button flow for long-term collection goals",
+      "glob": "*.mlua",
+      "count": 3,
+      "exists": true,
+      "sample": "docs/resource/monster-farm/scripts/Book/Logic/BookService.mlua",
+      "sample_exists": true
+    },
+    "monster_datasets": {
+      "path": "docs/resource/monster-farm/datasets/DataSet/Monster",
+      "purpose": "monster base, UI, fusion, passive, and random-talk data references",
+      "glob": "*.csv",
+      "count": 9,
+      "exists": true,
+      "sample": "docs/resource/monster-farm/datasets/DataSet/Monster/MonsterDataSet_Base.csv",
+      "sample_exists": true
+    },
+    "ui": {
+      "path": "docs/resource/maple-soul-hero/ui",
+      "purpose": "battle/ranking/status UI layout source packet",
+      "glob": "*.ui",
+      "count": 57,
+      "exists": true,
+      "sample": "docs/resource/maple-soul-hero/ui/BattleGroup.ui",
+      "sample_exists": true
+    },
+    "maps": {
+      "path": "docs/resource/miner-simulator/maps",
+      "purpose": "multi-stage map resource packet for expedition-area expansion",
+      "glob": "*.map",
+      "count": 44,
+      "exists": true,
+      "sample": "docs/resource/miner-simulator/maps/Mine1_1.map",
+      "sample_exists": true
+    }
+  },
+  "missing": [],
+  "checks": {
+    "catalog_script_exists": true,
+    "catalog_attached_to_map": true,
+    "manager_requires_catalog": true,
+    "manager_logs_wave_routes": true,
+    "catalog_logs_sources": true,
+    "catalog_names_required_packets": true,
+    "all_packets_present": true
+  }
+}

@@ -1,14 +1,18 @@
-goal: "Expand MapleSurvivalExpedition to the full contest design (docs/join_develop.md): 10-wave expedition with elites and boss, consumables, escape decision, monster collection, account meta - balanced by an automated implement/verify/improve loop and delivered to GitHub with images, badges, and game introduction"
+goal: "Expand MapleSurvivalExpedition to the full contest design (docs/join_develop.md): 10-wave expedition with elites and boss, consumables, escape decision, monster collection, account meta, and docs/resource planning-script linkage - balanced by an automated implement/verify/improve loop and delivered to GitHub with images, badges, and game introduction"
 constraints:
   - "All gameplay scripts are MapleStory Worlds component/logic Lua; balance numbers live only in balance_table.json (single SSOT) and BalanceTable.lua is generated via tools/msw_project_cli.py gen-lua"
   - "All verification goes through tools/msw_project_cli.py (validate / expedition / evaluate / balance-loop); evaluate evidence is harness JSON output, not exit codes alone"
   - "Balance tuning runs through the ralph loop (balance-loop) with at least 50 logged implement->verify->improve iterations"
   - "The ouroboros MCP server is registered in .mcp.json for ralph subagent execution (ouroboros mcp serve, 23 tools)"
+  - "Actual MSW Maker validation must refresh LocalWorkspace, inspect build logs, run Play mode, capture a screenshot, query server_main state, stop, and save through Maker MCP"
+  - "The executable world must link the docs/resource planning packets through a map-attached ExpeditionResourceCatalog component; wave routes must log concrete source paths during Maker Play"
 acceptance_criteria:
   - "python tools/msw_project_cli.py validate exits 0 for all 7 MSW scripts"
   - "python tools/msw_project_cli.py evaluate reports all_passed:true across 7 criteria (standard full clear with boss and 0 deaths; session 300-720s; cautious safe extract; greedy min health < 0.55; monotonic wave difficulty; >=4 collection discoveries; account meta settlement > 0)"
   - "BALANCE_LOOP_REPORT.md and balance_loop_log.json record a balance loop run of >= 50 iterations ending in 7/7 criteria PASS"
   - "README.md contains shields.io badges, the game introduction from docs/join_develop.md, and embedded images (banner, balance charts, engine screenshots) that exist in artifacts/"
+  - "python tools/msw_project_cli.py resource-linkage reports all_passed:true and confirms ExpeditionResourceCatalog is attached to map/map01.map"
+  - "RALPH_RESOURCE_LINKAGE_VERIFICATION.json reports all_passed:true with Maker MCP build_zero, screenshot_copied, wave_routes_logged, query_confirms_resource_ready, and expedition_cleared"
   - "git ls-remote origin master hash equals local master hash after push (delivery verified)"
 ontology_schema:
   name: "MswSurvivalExpansionDelivery"

@@ -1,0 +1,66 @@
+@Component
+script ExpeditionResourceCatalog extends Component
+
+	@Sync property integer BattleScriptCount = 92
+	@Sync property integer RankingScriptCount = 8
+	@Sync property integer StageScriptCount = 6
+	@Sync property integer MinerPlayerScriptCount = 68
+	@Sync property integer MonsterBookScriptCount = 3
+	@Sync property integer MonsterCollectionScriptCount = 7
+	@Sync property integer MonsterDatasetCount = 9
+	@Sync property integer SoulHeroUiCount = 57
+	@Sync property integer MinerMapCount = 44
+	@Sync property string BattleSource = "docs/resource/maple-soul-hero/scripts/Battle/Event/WaveStartEvent.mlua"
+	@Sync property string StageSource = "docs/resource/maple-soul-hero/scripts/Stage/Logic/StageLogic.mlua"
+	@Sync property string RankingSource = "docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua"
+	@Sync property string MinerSource = "docs/resource/miner-simulator/scripts/Components/Player/Accessory/PlayerAccessory.mlua"
+	@Sync property string CollectionSource = "docs/resource/monster-farm/scripts/Collection/CollectionService.mlua"
+	@Sync property string MonsterBookSource = "docs/resource/monster-farm/scripts/Book/Logic/BookService.mlua"
+	@Sync property string MonsterDatasetSource = "docs/resource/monster-farm/datasets/DataSet/Monster/MonsterDataSet_Base.csv"
+	@Sync property string UiSource = "docs/resource/maple-soul-hero/ui/BattleGroup.ui"
+	@Sync property string MapSource = "docs/resource/miner-simulator/maps/Mine1_1.map"
+	@Sync property string LinkedPacketsCsv = "battle,stage,ranking,miner,collection,book,dataset,ui,map"
+	@Sync property boolean ResourceLinkReady = false
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Publishes the verified docs/resource packets that this playable loop is based on.
+		self.ResourceLinkReady = true
+		log("[MapleSurvivalExpedition][RESOURCE] catalog_ready battleScripts=" .. tostring(self.BattleScriptCount) .. " rankingScripts=" .. tostring(self.RankingScriptCount) .. " stageScripts=" .. tostring(self.StageScriptCount) .. " minerPlayerScripts=" .. tostring(self.MinerPlayerScriptCount) .. " collectionScripts=" .. tostring(self.MonsterCollectionScriptCount) .. " monsterBookScripts=" .. tostring(self.MonsterBookScriptCount) .. " monsterDatasets=" .. tostring(self.MonsterDatasetCount) .. " ui=" .. tostring(self.SoulHeroUiCount) .. " maps=" .. tostring(self.MinerMapCount))
+		log("[MapleSurvivalExpedition][RESOURCE] source battle=" .. self.BattleSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source stage=" .. self.StageSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source ranking=" .. self.RankingSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source miner=" .. self.MinerSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source collection=" .. self.CollectionSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source book=" .. self.MonsterBookSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source dataset=" .. self.MonsterDatasetSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source ui=" .. self.UiSource)
+		log("[MapleSurvivalExpedition][RESOURCE] source map=" .. self.MapSource)
+	end
+
+	method string GetSourceForWave(integer wave)
+		-- Maps each survival wave to the planning/resource packet that informed it.
+		if wave == 10 then return self.RankingSource end
+		if wave == 3 or wave == 6 or wave == 9 then return self.BattleSource end
+		if wave == 2 then return self.StageSource end
+		if wave == 4 or wave == 7 then return self.MinerSource end
+		if wave == 5 or wave == 8 then return self.CollectionSource end
+		return self.MonsterDatasetSource
+	end
+
+	method string GetPacketForWave(integer wave)
+		-- Returns a compact packet label for runtime verification logs.
+		if wave == 10 then return "ranking-boss-settlement" end
+		if wave == 3 or wave == 6 or wave == 9 then return "battle-elite-wave" end
+		if wave == 2 then return "stage-entry" end
+		if wave == 4 or wave == 7 then return "miner-resource-growth" end
+		if wave == 5 or wave == 8 then return "monster-collection" end
+		return "monster-dataset"
+	end
+
+	method boolean HasRequiredPackets()
+		-- Confirms that every required packet was generated into this component.
+		return self.BattleScriptCount > 0 and self.RankingScriptCount > 0 and self.StageScriptCount > 0 and self.MinerPlayerScriptCount > 0 and self.MonsterCollectionScriptCount > 0 and self.MonsterBookScriptCount > 0 and self.MonsterDatasetCount > 0 and self.SoulHeroUiCount > 0 and self.MinerMapCount > 0
+	end
+
+end

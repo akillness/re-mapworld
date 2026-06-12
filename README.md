@@ -2,37 +2,39 @@
 
 ![Maple Survival Expedition banner](artifacts/banner.png)
 
-![Release](https://img.shields.io/badge/release-v0.1.0--mcp-blue)
+![Release](https://img.shields.io/badge/release-v0.2.0--ralph--resource-blue)
 ![Engine](https://img.shields.io/badge/engine-MapleStory%20Worlds-orange)
 ![Runtime](https://img.shields.io/badge/MSW%20Maker%20MCP-verified-success)
 ![Build Logs](https://img.shields.io/badge/build%20logs-0%20errors-brightgreen)
 ![Balance](https://img.shields.io/badge/balance-7%2F7%20PASS-brightgreen)
 ![Iterations](https://img.shields.io/badge/ralph%20iterations-260%2B-blueviolet)
 ![Session](https://img.shields.io/badge/session-10%20waves%20%2F%20556s-informational)
+![Resource Linkage](https://img.shields.io/badge/resource%20linkage-9%20packets%20verified-brightgreen)
 ![Language](https://img.shields.io/badge/scripts-MSW%20Lua-blue)
 ![Contest](https://img.shields.io/badge/MapleStory%20Global%20Dev%20Contest-2026-red)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-> **Release Candidate v0.1.0-mcp** — MapleStory Worlds LocalWorkspace에서 실행되는 월드, 공식 MSW Maker MCP Play Test, 260+회 밸런스 반복, 7/7 수용 기준 통과 증거를 포함한 세션형 서바이벌 MORPG 프로토타입입니다.
+> **Release Candidate v0.2.0-ralph-resource** — MapleStory Worlds LocalWorkspace에서 실행되는 월드, 공식 MSW Maker MCP Play Test, 260+회 밸런스 반복, `docs/resource` 기획 스크립트/리소스 9개 패킷 연동, 7/7 수용 기준 통과 증거를 포함한 세션형 서바이벌 MORPG 프로토타입입니다.
 
 ## 실행 화면
 
-MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_workspace` → `maker_play` → `maker_screenshot`으로 캡처한 실제 Play 화면입니다. 두 번째 이미지는 리뷰 후 개선으로 추가한 **map-attached gameplay component** 실행 검증 캡처입니다.
+MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_workspace` → `maker_play` → `maker_screenshot`으로 캡처한 실제 Play 화면입니다. 세 번째 이미지는 ralph 재검증으로 추가한 **docs/resource 기획 스크립트/리소스 연동** 실동작 캡처입니다.
 
-| Workspace Play | Map-attached Gameplay Verification |
-|---|---|
-| ![MSW Maker workspace play capture](artifacts/msw_workspace_play_capture.png) | ![MSW playable entities capture](artifacts/msw_playable_entities_capture.png) |
+| Workspace Play | Map-attached Gameplay | Resource-linked Ralph Verification |
+|---|---|---|
+| ![MSW Maker workspace play capture](artifacts/msw_workspace_play_capture.png) | ![MSW playable entities capture](artifacts/msw_playable_entities_capture.png) | ![MSW resource-linked ralph capture](artifacts/msw_resource_linked_ralph_capture.png) |
 
 | 실행 증거 | 결과 |
 |---|---:|
 | Maker MCP 연결 도구 | 15개 |
 | Build Console | 0 errors |
-| Runtime Console | 299 playable logs |
-| Map-attached gameplay entities | 6개 |
-| 직접 상태 조회 | `wave=10`, `outcome=cleared`, `deaths=0`, `collection=7`, `accountExp=632` |
-| 최종 평가 | 7/7 PASS |
+| Runtime Console | 623 resource/playable logs |
+| Map-attached gameplay entities | 7개 |
+| docs/resource packets | 9개 패킷 / 294개 파일 |
+| 직접 상태 조회 | `wave=10`, `outcome=cleared`, `resourceReady=true`, `collection=7`, `accountExp=559` |
+| 최종 평가 | 7/7 PASS + resource-linkage PASS |
 
-상세 증거: [`MSW_PLAYABLE_REVIEW_VERIFICATION.md`](MSW_PLAYABLE_REVIEW_VERIFICATION.md) · [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md) · [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md)
+상세 증거: [`RALPH_RESOURCE_LINKAGE_VERIFICATION.md`](RALPH_RESOURCE_LINKAGE_VERIFICATION.md) · [`MSW_PLAYABLE_REVIEW_VERIFICATION.md`](MSW_PLAYABLE_REVIEW_VERIFICATION.md) · [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md) · [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md)
 
 ## 게임 소개
 
@@ -54,12 +56,14 @@ MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_worksp
 |---|---|
 | **월드 실행** | MSW Maker LocalWorkspace 저장소 연결, ExtendedScriptFormat 활성화, Play Test 실행 및 캡처 |
 | **실동작 개선** | 리뷰 후 `map/map01.map`에 6개 gameplay entity를 배치하고 실제 컴포넌트 실행 로그로 검증 |
+| **리소스 연동** | `docs/resource`의 Battle/Stage/Ranking/Miner/Collection/Dataset/UI/Map 패킷을 `ExpeditionResourceCatalog`로 실제 월드에 연결 |
 | **세션 구조** | normal 6웨이브, elite 3웨이브, boss 1웨이브로 구성된 10웨이브 원정 |
 | **보스 콘텐츠** | Wave 10 `BossBalrog` 진입, spawn, 처치, 클리어 로그 검증 |
 | **도감/성장** | 7종 몬스터 도감 등록, 레벨업, 계정 경험치 정산 로그 검증 |
 | **생존 자원** | 체력, 허기, 포션, 식량, 휴식 회복, 탈출/전멸 보존율 설계 |
 | **밸런스 루프** | ralph 방식 구현→검증→개선 260+회, 최종 7/7 PASS |
 | **GitHub 패키징** | 배너, 실행 화면, 밸런스 차트, 검증 리포트, MCP 설정 포함 |
+| **MCP 재검증** | Maker MCP로 refresh → build log 0 → play → screenshot → server query → stop/save까지 재실행 |
 
 ## 핵심 게임 루프
 
@@ -120,13 +124,15 @@ MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_worksp
 | **Map-attached Collection** | `RootDesk/MyDesk/MapleSurvivalExpedition/MonsterCollection.mlua` | `/maps/map01/MonsterCollection`에서 도감 7종 등록 검증 |
 | **Player State Probe** | `RootDesk/MyDesk/PlayerSurvivalStats.mlua` | `/maps/map01/PlayerSurvivalProbe`에서 HP/EXP/score/death 상태 검증 |
 | **HUD Bridge** | `RootDesk/MyDesk/MapleSurvivalExpedition/SurvivalHudBridge.mlua` | `/maps/map01/SurvivalHudBridge`에 붙는 HUD 상태 브리지 |
+| **Resource Catalog** | `RootDesk/MyDesk/MapleSurvivalExpedition/ExpeditionResourceCatalog.mlua` | `/maps/map01/ExpeditionResourceCatalog`에서 `docs/resource` 기획 스크립트/리소스 패킷과 웨이브별 source route 제공 |
 | **MCP Runtime Harness** | `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua` | Maker Play Test 보조 검증용 `@Logic` |
-| **Map** | `map/map01.map` | gameplay entity 6개가 배치된 MSW 월드 기본 맵 |
+| **Map** | `map/map01.map` | gameplay/resource entity 7개가 배치된 MSW 월드 기본 맵 |
 | **UI Groups** | `ui/*.ui` | Default/Popup/Toast UI 그룹 |
 | **Balance SSOT** | `balance_table.json` | 밸런스 원본 데이터 |
 | **Generated Logic** | `BalanceTable.lua` | 밸런스 데이터에서 생성되는 루트 참고 스크립트 |
 | **Simulation Harness** | `tools/survival_sim.py` | 정책/시드 기반 세션 평가 |
-| **Project CLI** | `tools/msw_project_cli.py` | validate/evaluate/balance-loop/charts 실행 |
+| **Project CLI** | `tools/msw_project_cli.py` | validate/evaluate/resource-linkage/balance-loop/charts 실행 |
+| **Resource Evidence** | `RALPH_RESOURCE_LINKAGE_VERIFICATION.*`, `RESOURCE_LINKAGE_VERIFICATION.json` | docs/resource 패킷, wave route, Maker MCP 직접 조회 증거 |
 | **MCP Evidence** | `MSW_PLAYABLE_REVIEW_VERIFICATION.*`, `MSW_MCP_VERIFICATION.*` | Maker MCP 도구, 빌드 로그, 런타임 로그 증거 |
 
 ## 검증 명령
@@ -136,6 +142,8 @@ python tools/msw_project_cli.py validate
 python tools/msw_project_cli.py evaluate
 python -c "import json; d=json.load(open('MSW_MCP_VERIFICATION.json', encoding='utf-8')); assert d['build_logs']['count']==0; assert all(d['runtime_checks'].values()); assert d['execute_script']['dispatched']; print('MSW MCP evidence: PASS')"
 python -c "import json; d=json.load(open('MSW_PLAYABLE_REVIEW_VERIFICATION.json', encoding='utf-8')); assert d['all_passed']; print('MSW playable evidence: PASS')"
+python tools/msw_project_cli.py resource-linkage
+python -c "import json; d=json.load(open('RALPH_RESOURCE_LINKAGE_VERIFICATION.json', encoding='utf-8')); assert d['all_passed']; assert d['checks']['query_confirms_resource_ready']; print('ralph resource linkage evidence: PASS')"
 ```
 
 추가 작업용 명령:
@@ -163,6 +171,10 @@ python tools/msw_project_cli.py launch-engine
    - `maker_play`
    - `maker_logs(kind="normal")`
    - `maker_screenshot`
+   - `maker_get_context_keys`
+   - `maker_execute_script(context="server_main")`
+   - `maker_stop`
+   - `maker_save`
 
 MCP 서버 구성:
 
@@ -185,6 +197,24 @@ MCP 서버 구성:
 
 상세 기획 문서: [`docs/join_develop.md`](docs/join_develop.md)
 
+## 실제 리소스 연동
+
+`ExpeditionResourceCatalog`는 이 월드가 참고하는 실제 기획/소스 패킷을 런타임 로그로 고정합니다.
+
+| 패킷 | 파일 수 | 대표 source |
+|---|---:|---|
+| Battle scripts | 92 | `docs/resource/maple-soul-hero/scripts/Battle/Event/WaveStartEvent.mlua` |
+| Stage scripts | 6 | `docs/resource/maple-soul-hero/scripts/Stage/Logic/StageLogic.mlua` |
+| Ranking scripts | 8 | `docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua` |
+| Miner player scripts | 68 | `docs/resource/miner-simulator/scripts/Components/Player/Accessory/PlayerAccessory.mlua` |
+| Monster collection scripts | 7 | `docs/resource/monster-farm/scripts/Collection/CollectionService.mlua` |
+| Monster book scripts | 3 | `docs/resource/monster-farm/scripts/Book/Logic/BookService.mlua` |
+| Monster datasets | 9 | `docs/resource/monster-farm/datasets/DataSet/Monster/MonsterDataSet_Base.csv` |
+| Maple Soul Hero UI | 57 | `docs/resource/maple-soul-hero/ui/BattleGroup.ui` |
+| Miner maps | 44 | `docs/resource/miner-simulator/maps/Mine1_1.map` |
+
+Maker Play 로그는 1~10웨이브 각각의 `packet`과 `source`를 출력하며, 직접 조회 로그는 `resourceReady=true`와 wave 10 ranking source를 확인합니다.
+
 ## 릴리즈 에셋
 
 | 에셋 | 설명 |
@@ -192,9 +222,14 @@ MCP 서버 구성:
 | `artifacts/banner.png` | GitHub/월드 소개용 메인 배너 |
 | `artifacts/msw_workspace_play_capture.png` | MSW Maker Play 캡처 |
 | `artifacts/msw_playable_entities_capture.png` | map-attached gameplay entity 실동작 검증 캡처 |
+| `artifacts/msw_resource_linked_ralph_capture.png` | docs/resource 연동 후 ralph 재검증 Play 캡처 |
 | `artifacts/balance_progression.png` | ralph 반복 수렴 그래프 |
 | `artifacts/wave_difficulty.png` | 웨이브 난이도 곡선 |
 | `MSW_PLAYABLE_REVIEW_VERIFICATION.md` | 리뷰 후 실동작 개선 검증 리포트 |
+| `RALPH_RESOURCE_LINKAGE_VERIFICATION.md` | docs/resource 패킷 연동 + Maker MCP 실동작 검증 리포트 |
+| `RALPH_RESOURCE_LINKAGE_VERIFICATION.json` | all_passed/checks/resource_tail/playable_tail를 담은 기계검증 증거 |
+| `RALPH_RESOURCE_LOGS_1.json`, `RALPH_RESOURCE_LOGS_2.json` | Maker MCP normal 로그 원본 스냅샷 |
+| `RALPH_RESOURCE_BUILD_LOGS.json` | 최종 Maker Build Console `count=0` 증거 |
 | `MSW_MCP_VERIFICATION.md` | Maker MCP 실행 증거 |
 | `ENGINE_RUN_REPORT.md` | 엔진 실행/검증 리포트 |
 

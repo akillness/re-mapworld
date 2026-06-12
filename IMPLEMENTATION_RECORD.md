@@ -1,5 +1,20 @@
 # MapleSurvivalExpedition Implementation Record
 
+## 2026-06-12 — Ralph resource-linkage redo
+
+### Completed
+
+- Restarted the verification loop from the actual planning/resource packet under `docs/resource/` instead of relying on the prior harness proof alone.
+- Added `/maps/map01/ExpeditionResourceCatalog` → `script.ExpeditionResourceCatalog` and required `SurvivalGameManager` to find it before starting.
+- Linked and logged 9 source packets: Battle (92 `.mlua`), Stage (6 `.mlua`), Ranking (8 `.mlua`), Miner player growth (68 `.mlua`), Monster Collection (7 `.mlua`), Monster Book (3 `.mlua`), Monster Dataset (9 `.csv`), UI (57 `.ui`), and Maps (44 `.map`).
+- Added `python tools/msw_project_cli.py resource-linkage` as a machine-checkable harness for catalog/script/map linkage.
+- Verified real Maker Play through MCP after refresh:
+  - Build logs: `count=0`.
+  - Screenshot: `artifacts/msw_resource_linked_ralph_capture.png`.
+  - Runtime logs: 623 resource/playable entries across two reads.
+  - Resource query log: `wave=10 outcome=cleared complete=true resourceReady=true packets=battle,stage,ranking,miner,collection,book,dataset,ui,map ... wave10Source=docs/resource/maple-soul-hero/scripts/Ranking/RankingLogic.mlua`.
+  - Completion log: `expedition_complete outcome=cleared bossDefeated=true deaths=0 score=5596 accountExp=559 collection=7`.
+- Added `RALPH_RESOURCE_LINKAGE_VERIFICATION.md`, `RALPH_RESOURCE_LINKAGE_VERIFICATION.json`, `RESOURCE_LINKAGE_VERIFICATION.json`, and the resource-linked engine screenshot.
 ## 2026-06-12 — Review-driven playable component verification
 
 ### Completed

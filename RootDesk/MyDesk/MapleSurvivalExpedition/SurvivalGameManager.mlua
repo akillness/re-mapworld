@@ -31,6 +31,14 @@ script SurvivalGameManager extends Component
 		self.KillsThisWave = 0
 		self.TotalKills = 0
 		self.SpawnTimer = 0
+		local resourceCatalog = self:GetResourceCatalog()
+		if isvalid(resourceCatalog) == false or resourceCatalog:HasRequiredPackets() == false then
+			log_error("[MapleSurvivalExpedition][RESOURCE] catalog missing or incomplete")
+			self.SessionOutcome = "missing_resource_catalog"
+			self.IsComplete = true
+			return
+		end
+		log("[MapleSurvivalExpedition][RESOURCE] catalog linked packets=" .. resourceCatalog.LinkedPacketsCsv)
 		log("[MapleSurvivalExpedition][PLAYABLE] SurvivalGameManager attached and starting")
 		self:StartNextWave()
 	end
@@ -79,6 +87,12 @@ script SurvivalGameManager extends Component
 			if isvalid(spawner) == true then
 				spawner:ResetForWave(self.CurrentWave)
 			end
+		end
+		local resourceCatalog = self:GetResourceCatalog()
+		if isvalid(resourceCatalog) == true then
+			local packet = resourceCatalog:GetPacketForWave(self.CurrentWave)
+			local source = resourceCatalog:GetSourceForWave(self.CurrentWave)
+			log("[MapleSurvivalExpedition][RESOURCE] wave_route wave=" .. tostring(self.CurrentWave) .. " packet=" .. packet .. " source=" .. source)
 		end
 		log("[MapleSurvivalExpedition][PLAYABLE] wave_start wave=" .. tostring(self.CurrentWave) .. " type=" .. self.CurrentWaveType .. " duration=" .. tostring(self.WaveTimer))
 		if self.CurrentWaveType == "elite" then
@@ -206,4 +220,13 @@ script SurvivalGameManager extends Component
 		return balance:GetWaveType(wave)
 	end
 
+	method any GetResourceCatalog()
+		-- Finds the map-attached resource catalog that freezes the docs/resource linkage for this run.
+		local catalogEntity = _EntityService:GetEntityByPath("/maps/map01/ExpeditionResourceCatalog")
+		if catalogEntity == nil then
+			return nil
+		end
+		local catalog = catalogEntity:GetComponent("script.ExpeditionResourceCatalog")
+		return catalog
+	end
 end
