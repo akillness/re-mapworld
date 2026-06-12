@@ -17,19 +17,22 @@
 
 ## 실행 화면
 
-MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_workspace` → `maker_play` → `maker_screenshot`으로 캡처한 실제 Play 화면입니다.
+MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_workspace` → `maker_play` → `maker_screenshot`으로 캡처한 실제 Play 화면입니다. 두 번째 이미지는 리뷰 후 개선으로 추가한 **map-attached gameplay component** 실행 검증 캡처입니다.
 
-![MSW Maker workspace play capture](artifacts/msw_workspace_play_capture.png)
+| Workspace Play | Map-attached Gameplay Verification |
+|---|---|
+| ![MSW Maker workspace play capture](artifacts/msw_workspace_play_capture.png) | ![MSW playable entities capture](artifacts/msw_playable_entities_capture.png) |
 
 | 실행 증거 | 결과 |
 |---|---:|
 | Maker MCP 연결 도구 | 15개 |
 | Build Console | 0 errors |
-| Runtime Console | 93+ logs |
-| 직접 상태 조회 | `wave=10`, `outcome=cleared`, `deaths=0`, `collection=7` |
+| Runtime Console | 299 playable logs |
+| Map-attached gameplay entities | 6개 |
+| 직접 상태 조회 | `wave=10`, `outcome=cleared`, `deaths=0`, `collection=7`, `accountExp=632` |
 | 최종 평가 | 7/7 PASS |
 
-상세 증거: [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md) · [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md)
+상세 증거: [`MSW_PLAYABLE_REVIEW_VERIFICATION.md`](MSW_PLAYABLE_REVIEW_VERIFICATION.md) · [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md) · [`ENGINE_RUN_REPORT.md`](ENGINE_RUN_REPORT.md)
 
 ## 게임 소개
 
@@ -50,8 +53,9 @@ MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_worksp
 | 영역 | 포함 내용 |
 |---|---|
 | **월드 실행** | MSW Maker LocalWorkspace 저장소 연결, ExtendedScriptFormat 활성화, Play Test 실행 및 캡처 |
+| **실동작 개선** | 리뷰 후 `map/map01.map`에 6개 gameplay entity를 배치하고 실제 컴포넌트 실행 로그로 검증 |
 | **세션 구조** | normal 6웨이브, elite 3웨이브, boss 1웨이브로 구성된 10웨이브 원정 |
-| **보스 콘텐츠** | Wave 10 `BossBalrog` 진입, 처치, 클리어 로그 검증 |
+| **보스 콘텐츠** | Wave 10 `BossBalrog` 진입, spawn, 처치, 클리어 로그 검증 |
 | **도감/성장** | 7종 몬스터 도감 등록, 레벨업, 계정 경험치 정산 로그 검증 |
 | **생존 자원** | 체력, 허기, 포션, 식량, 휴식 회복, 탈출/전멸 보존율 설계 |
 | **밸런스 루프** | ralph 방식 구현→검증→개선 260+회, 최종 7/7 PASS |
@@ -110,17 +114,20 @@ MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_worksp
 
 | 레이어 | 파일 / 경로 | 역할 |
 |---|---|---|
-| **MSW Runtime** | `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua` | Maker Play Test에서 실행되는 검증용 `@Logic` |
-| **Player State** | `RootDesk/MyDesk/PlayerSurvivalStats.mlua` | 플레이어 생존/성장 상태 컴포넌트 |
-| **UI Popup** | `RootDesk/MyDesk/UIPopup.mlua` | 팝업 UI 동작 |
-| **UI Toast** | `RootDesk/MyDesk/UIToast.mlua` | 토스트 UI 동작 |
-| **Map** | `map/map01.map` | MSW 월드 기본 맵 |
+| **Map-attached Manager** | `RootDesk/MyDesk/MapleSurvivalExpedition/SurvivalGameManager.mlua` | `/maps/map01/SurvivalGameManager`에 붙는 실제 진행 컨트롤러 |
+| **Map-attached Spawner** | `RootDesk/MyDesk/MapleSurvivalExpedition/MonsterSpawner.mlua` | `/maps/map01/MonsterSpawner`에서 웨이브별 몬스터 spawn/defeat 로그 발생 |
+| **Map-attached Balance** | `RootDesk/MyDesk/MapleSurvivalExpedition/BalanceTable.mlua` | `/maps/map01/BalanceTable`에서 웨이브/몬스터 수치 제공 |
+| **Map-attached Collection** | `RootDesk/MyDesk/MapleSurvivalExpedition/MonsterCollection.mlua` | `/maps/map01/MonsterCollection`에서 도감 7종 등록 검증 |
+| **Player State Probe** | `RootDesk/MyDesk/PlayerSurvivalStats.mlua` | `/maps/map01/PlayerSurvivalProbe`에서 HP/EXP/score/death 상태 검증 |
+| **HUD Bridge** | `RootDesk/MyDesk/MapleSurvivalExpedition/SurvivalHudBridge.mlua` | `/maps/map01/SurvivalHudBridge`에 붙는 HUD 상태 브리지 |
+| **MCP Runtime Harness** | `RootDesk/MyDesk/MapleSurvivalExpedition/MapleSurvivalExpeditionRuntime.mlua` | Maker Play Test 보조 검증용 `@Logic` |
+| **Map** | `map/map01.map` | gameplay entity 6개가 배치된 MSW 월드 기본 맵 |
 | **UI Groups** | `ui/*.ui` | Default/Popup/Toast UI 그룹 |
 | **Balance SSOT** | `balance_table.json` | 밸런스 원본 데이터 |
-| **Generated Logic** | `BalanceTable.lua` | 밸런스 데이터에서 생성되는 MSW Logic |
+| **Generated Logic** | `BalanceTable.lua` | 밸런스 데이터에서 생성되는 루트 참고 스크립트 |
 | **Simulation Harness** | `tools/survival_sim.py` | 정책/시드 기반 세션 평가 |
 | **Project CLI** | `tools/msw_project_cli.py` | validate/evaluate/balance-loop/charts 실행 |
-| **MCP Evidence** | `MSW_MCP_VERIFICATION.*` | Maker MCP 도구, 빌드 로그, 런타임 로그 증거 |
+| **MCP Evidence** | `MSW_PLAYABLE_REVIEW_VERIFICATION.*`, `MSW_MCP_VERIFICATION.*` | Maker MCP 도구, 빌드 로그, 런타임 로그 증거 |
 
 ## 검증 명령
 
@@ -128,6 +135,7 @@ MSW Maker LocalWorkspace를 이 저장소에 연결한 뒤 `maker_refresh_worksp
 python tools/msw_project_cli.py validate
 python tools/msw_project_cli.py evaluate
 python -c "import json; d=json.load(open('MSW_MCP_VERIFICATION.json', encoding='utf-8')); assert d['build_logs']['count']==0; assert all(d['runtime_checks'].values()); assert d['execute_script']['dispatched']; print('MSW MCP evidence: PASS')"
+python -c "import json; d=json.load(open('MSW_PLAYABLE_REVIEW_VERIFICATION.json', encoding='utf-8')); assert d['all_passed']; print('MSW playable evidence: PASS')"
 ```
 
 추가 작업용 명령:
@@ -183,8 +191,10 @@ MCP 서버 구성:
 |---|---|
 | `artifacts/banner.png` | GitHub/월드 소개용 메인 배너 |
 | `artifacts/msw_workspace_play_capture.png` | MSW Maker Play 캡처 |
+| `artifacts/msw_playable_entities_capture.png` | map-attached gameplay entity 실동작 검증 캡처 |
 | `artifacts/balance_progression.png` | ralph 반복 수렴 그래프 |
 | `artifacts/wave_difficulty.png` | 웨이브 난이도 곡선 |
+| `MSW_PLAYABLE_REVIEW_VERIFICATION.md` | 리뷰 후 실동작 개선 검증 리포트 |
 | `MSW_MCP_VERIFICATION.md` | Maker MCP 실행 증거 |
 | `ENGINE_RUN_REPORT.md` | 엔진 실행/검증 리포트 |
 

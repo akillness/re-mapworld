@@ -1,5 +1,25 @@
 # MapleSurvivalExpedition Implementation Record
 
+## 2026-06-12 — Review-driven playable component verification
+
+### Completed
+
+- Addressed review finding that the previous MCP proof primarily exercised an accelerated harness.
+- Added six map-attached gameplay entities to `map/map01.map`:
+  - `/maps/map01/BalanceTable` → `script.BalanceTable`
+  - `/maps/map01/MonsterCollection` → `script.MonsterCollection`
+  - `/maps/map01/PlayerSurvivalProbe` → `script.PlayerSurvivalStats`
+  - `/maps/map01/MonsterSpawner` → `script.MonsterSpawner`
+  - `/maps/map01/SurvivalHudBridge` → `script.SurvivalHudBridge`
+  - `/maps/map01/SurvivalGameManager` → `script.SurvivalGameManager`
+- Added LocalWorkspace `.mlua` gameplay scripts under `RootDesk/MyDesk/MapleSurvivalExpedition/` and expanded `RootDesk/MyDesk/PlayerSurvivalStats.mlua`.
+- Verified real Maker Play through MCP:
+  - Build logs: `count=0`.
+  - Runtime logs: 299 entries.
+  - Completion log: `expedition_complete outcome=cleared bossDefeated=true deaths=0 score=6320 accountExp=632 collection=7`.
+  - Runtime query log: `wave=10 outcome=cleared deaths=0 collection=7 accountExp=632`.
+- Added `MSW_PLAYABLE_REVIEW_VERIFICATION.md`, `MSW_PLAYABLE_REVIEW_VERIFICATION.json`, and `artifacts/msw_playable_entities_capture.png`.
+
 ## 2026-06-12 — Official MSW Maker MCP verification
 
 ### Completed

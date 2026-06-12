@@ -1,0 +1,61 @@
+@Component
+script MonsterCollection extends Component
+
+	@Sync property string DiscoveredCsv = ""
+	@Sync property integer EntryCount = 0
+	@Sync property number AttackBonusPercent = 0
+	@Sync property number HealthBonusFlat = 0
+	property number AttackBonusPerEntry = 0.03
+	property number HealthBonusPerEntry = 6
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Resets the playable monster collection for the current session.
+		self.DiscoveredCsv = ""
+		self.EntryCount = 0
+		self.AttackBonusPercent = 0
+		self.HealthBonusFlat = 0
+		log("[MapleSurvivalExpedition][PLAYABLE] MonsterCollection attached and reset")
+	end
+
+	@ExecSpace("ServerOnly")
+	method void RegisterDiscovery(string monsterName)
+		-- Adds a monster to the collection exactly once.
+		if self:IsDiscovered(monsterName) == true then
+			return
+		end
+
+		if self.DiscoveredCsv == "" then
+			self.DiscoveredCsv = monsterName
+		else
+			self.DiscoveredCsv = self.DiscoveredCsv .. "," .. monsterName
+		end
+
+		self.EntryCount = self.EntryCount + 1
+		self.AttackBonusPercent = self.EntryCount * self.AttackBonusPerEntry
+		self.HealthBonusFlat = self.EntryCount * self.HealthBonusPerEntry
+		log("[MapleSurvivalExpedition][PLAYABLE] collection_add monster=" .. monsterName .. " count=" .. tostring(self.EntryCount))
+	end
+
+	method boolean IsDiscovered(string monsterName)
+		-- Checks collection CSV membership by exact entry.
+		if self.DiscoveredCsv == "" then
+			return false
+		end
+		if string.find("," .. self.DiscoveredCsv .. ",", "," .. monsterName .. ",") ~= nil then
+			return true
+		end
+		return false
+	end
+
+	method number GetAttackMultiplier()
+		-- Returns passive attack multiplier from discovered monster entries.
+		return 1.0 + self.AttackBonusPercent
+	end
+
+	method number GetHealthBonus()
+		-- Returns passive flat health bonus from discovered monster entries.
+		return self.HealthBonusFlat
+	end
+
+end

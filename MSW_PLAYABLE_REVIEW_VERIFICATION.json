@@ -1,0 +1,113 @@
+{
+  "generated": "2026-06-12",
+  "purpose": "review-driven real operation verification of map-attached gameplay components",
+  "sequence": [
+    {
+      "maker_stop": {
+        "status": "already_stopped",
+        "mode": "edit"
+      }
+    },
+    {
+      "maker_clear_logs": {
+        "status": "cleared",
+        "clearedCount": 0
+      }
+    },
+    {
+      "maker_refresh_workspace": {
+        "status": "ok"
+      }
+    },
+    {
+      "maker_logs": {
+        "status": "ok",
+        "kind": "build",
+        "count": 0,
+        "logs": []
+      }
+    },
+    {
+      "maker_play": {
+        "status": "ok",
+        "mode": "edit_to_play"
+      }
+    }
+  ],
+  "screenshot": {
+    "source": {
+      "status": "ok",
+      "mode": "play",
+      "path": "C:/Users/bangg/AppData/LocalLow/nexon/MapleStory Worlds\\McpScreenshots\\maker_play_20260612_111101_626.png",
+      "width": 1723,
+      "height": 969,
+      "resolution": {
+        "width": 1920.0,
+        "height": 1080.0
+      }
+    },
+    "copied_to": "C:\\Users\\bangg\\MapleSurvivalExpedition\\artifacts\\msw_playable_entities_capture.png",
+    "exists": true,
+    "bytes": 2613221
+  },
+  "normal_log_count": 299,
+  "checks": {
+    "build_zero": true,
+    "balance_attached": true,
+    "collection_attached": true,
+    "spawner_attached": true,
+    "player_probe_attached": true,
+    "manager_attached": true,
+    "wave_10_started": true,
+    "boss_spawned": true,
+    "boss_collected": true,
+    "complete_cleared": true
+  },
+  "all_passed": true,
+  "query_logs": [
+    "[MapleSurvivalExpedition][PLAYABLE_QUERY] wave=10 outcome=cleared deaths=0 collection=7 accountExp=632"
+  ],
+  "playable_tail": [
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=1",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=19",
+    "[MapleSurvivalExpedition][PLAYABLE] level_up level=5 score=3320",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=3320 health=192",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=2",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=33",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=3920 health=186",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=3",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=48",
+    "[MapleSurvivalExpedition][PLAYABLE] level_up level=6 score=4520",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=4520 health=210",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=4",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=62",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=5120 health=203",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=5",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=76",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=5720 health=196",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=6",
+    "[MapleSurvivalExpedition][PLAYABLE] spawn monster=BossBalrog wave=10 risk=91",
+    "[MapleSurvivalExpedition][PLAYABLE] level_up level=7 score=6320",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=BossBalrog score=6320 health=228",
+    "[MapleSurvivalExpedition][PLAYABLE] defeat monster=BossBalrog wave=10 kills=7",
+    "[MapleSurvivalExpedition][PLAYABLE] wave_clear wave=10 kills=7",
+    "[MapleSurvivalExpedition][PLAYABLE] expedition_complete outcome=cleared bossDefeated=true deaths=0 score=6320 accountExp=632 collection=7"
+  ],
+  "execute_script": {
+    "status": "ok",
+    "context": "server_main"
+  },
+  "save": [
+    {
+      "maker_stop": {
+        "status": "ok",
+        "mode": "play_to_edit"
+      }
+    },
+    {
+      "maker_save": {
+        "status": "ok"
+      }
+    }
+  ]
+}

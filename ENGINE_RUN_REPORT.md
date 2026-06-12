@@ -115,6 +115,44 @@ Direct runtime query via `maker_execute_script`:
 
 Raw evidence: [`MSW_MCP_VERIFICATION.json`](MSW_MCP_VERIFICATION.json) and [`MSW_MCP_VERIFICATION.md`](MSW_MCP_VERIFICATION.md).
 
+## Review-driven playable component verification
+
+A follow-up review identified that the first MCP proof exercised an accelerated runtime harness, but did not prove the gameplay scripts were attached to map entities. The improvement pass added six map-attached gameplay entities:
+
+```text
+/maps/map01/BalanceTable           -> script.BalanceTable
+/maps/map01/MonsterCollection      -> script.MonsterCollection
+/maps/map01/PlayerSurvivalProbe    -> script.PlayerSurvivalStats
+/maps/map01/MonsterSpawner         -> script.MonsterSpawner
+/maps/map01/SurvivalHudBridge      -> script.SurvivalHudBridge
+/maps/map01/SurvivalGameManager    -> script.SurvivalGameManager
+```
+
+MCP verification after the improvement:
+
+```text
+maker_stop
+maker_clear_logs
+maker_refresh_workspace
+maker_logs(kind="build") -> count: 0
+maker_play
+maker_screenshot -> artifacts/msw_playable_entities_capture.png
+maker_logs(kind="normal") -> count: 299
+maker_execute_script(context="server_main")
+maker_stop
+maker_save -> ok
+```
+
+Positive runtime evidence:
+
+```text
+[MapleSurvivalExpedition][PLAYABLE] wave_clear wave=10 kills=7
+[MapleSurvivalExpedition][PLAYABLE] expedition_complete outcome=cleared bossDefeated=true deaths=0 score=6320 accountExp=632 collection=7
+[MapleSurvivalExpedition][PLAYABLE_QUERY] wave=10 outcome=cleared deaths=0 collection=7 accountExp=632
+```
+
+Raw evidence: [`MSW_PLAYABLE_REVIEW_VERIFICATION.json`](MSW_PLAYABLE_REVIEW_VERIFICATION.json) and [`MSW_PLAYABLE_REVIEW_VERIFICATION.md`](MSW_PLAYABLE_REVIEW_VERIFICATION.md).
+
 ## Result
 
-Static harness validation, deterministic balance simulation, official MSW Maker MCP connection, LocalWorkspace refresh, build-log inspection, Play Test execution, runtime log verification, direct runtime state query, stop, and save are all verified.
+Static harness validation, deterministic balance simulation, official MSW Maker MCP connection, LocalWorkspace refresh, build-log inspection, Play Test execution, map-attached gameplay component execution, runtime log verification, direct runtime state query, stop, and save are all verified.

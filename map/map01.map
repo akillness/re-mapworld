@@ -158,6 +158,312 @@
           ],
           "@version": 1
         }
+      },
+      {
+        "id": "f3280d5f-2fed-49f1-9577-5862dfdf3d45",
+        "path": "/maps/map01/BalanceTable",
+        "componentNames": "MOD.Core.TransformComponent,script.BalanceTable",
+        "jsonString": {
+          "name": "BalanceTable",
+          "path": "/maps/map01/BalanceTable",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 3,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "f3280d5f-2fed-49f1-9577-5862dfdf3d45",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.BalanceTable",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "0204a092-8211-4953-a583-51534c2e7b82",
+        "path": "/maps/map01/MonsterCollection",
+        "componentNames": "MOD.Core.TransformComponent,script.MonsterCollection",
+        "jsonString": {
+          "name": "MonsterCollection",
+          "path": "/maps/map01/MonsterCollection",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 4,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "0204a092-8211-4953-a583-51534c2e7b82",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": -2.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.MonsterCollection",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "d9271c7b-8970-4126-98f4-60b97b9dd1b7",
+        "path": "/maps/map01/PlayerSurvivalProbe",
+        "componentNames": "MOD.Core.TransformComponent,script.PlayerSurvivalStats",
+        "jsonString": {
+          "name": "PlayerSurvivalProbe",
+          "path": "/maps/map01/PlayerSurvivalProbe",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 5,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "d9271c7b-8970-4126-98f4-60b97b9dd1b7",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.PlayerSurvivalStats",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "bdf03ef1-d700-4c8e-b82d-947b430652cf",
+        "path": "/maps/map01/MonsterSpawner",
+        "componentNames": "MOD.Core.TransformComponent,script.MonsterSpawner",
+        "jsonString": {
+          "name": "MonsterSpawner",
+          "path": "/maps/map01/MonsterSpawner",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 6,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "bdf03ef1-d700-4c8e-b82d-947b430652cf",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.MonsterSpawner",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "9d4c0940-66aa-42a6-b8fe-33b837b29fc4",
+        "path": "/maps/map01/SurvivalHudBridge",
+        "componentNames": "MOD.Core.TransformComponent,script.SurvivalHudBridge",
+        "jsonString": {
+          "name": "SurvivalHudBridge",
+          "path": "/maps/map01/SurvivalHudBridge",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 7,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "9d4c0940-66aa-42a6-b8fe-33b837b29fc4",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.SurvivalHudBridge",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "70dda0e0-7178-4e5c-a83a-b30e22366289",
+        "path": "/maps/map01/SurvivalGameManager",
+        "componentNames": "MOD.Core.TransformComponent,script.SurvivalGameManager",
+        "jsonString": {
+          "name": "SurvivalGameManager",
+          "path": "/maps/map01/SurvivalGameManager",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 8,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "70dda0e0-7178-4e5c-a83a-b30e22366289",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": 2.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.SurvivalGameManager",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
       }
     ]
   }

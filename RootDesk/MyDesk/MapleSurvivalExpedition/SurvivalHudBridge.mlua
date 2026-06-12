@@ -1,0 +1,32 @@
+@Component
+script SurvivalHudBridge extends Component
+
+	@Sync property string StageText = "Wave 0"
+	@Sync property string HealthText = "HP 0/0"
+	@Sync property string HungerText = "Hunger 0/0"
+	@Sync property string RiskText = "Risk 0%"
+	@Sync property string OutcomeText = "running"
+	@Sync property boolean VictoryVisible = false
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Initializes HUD-friendly synchronized fields for runtime evidence.
+		self:Refresh(0, 120, 120, 100, 100, 0, false, "running")
+		log("[MapleSurvivalExpedition][PLAYABLE] SurvivalHudBridge attached")
+	end
+
+	@ExecSpace("ServerOnly")
+	method void Refresh(integer wave, number health, number maxHealth, number hunger, number maxHunger, number risk, boolean complete, string outcome)
+		-- Updates the HUD projection used by runtime verification.
+		self.StageText = "Wave " .. tostring(wave)
+		self.HealthText = "HP " .. tostring(math.floor(health)) .. "/" .. tostring(math.floor(maxHealth))
+		self.HungerText = "Hunger " .. tostring(math.floor(hunger)) .. "/" .. tostring(math.floor(maxHunger))
+		self.RiskText = "Risk " .. tostring(math.floor(risk)) .. "%"
+		self.OutcomeText = outcome
+		self.VictoryVisible = complete
+		if wave == 1 or wave == 10 or complete == true then
+			log("[MapleSurvivalExpedition][PLAYABLE] hud_update stage=" .. self.StageText .. " hp=" .. self.HealthText .. " outcome=" .. outcome)
+		end
+	end
+
+end

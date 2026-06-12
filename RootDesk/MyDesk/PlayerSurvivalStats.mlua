@@ -1,4 +1,89 @@
 @Component
 script PlayerSurvivalStats extends Component
 
+	@Sync property number Health = 120
+	@Sync property number MaxHealth = 120
+	@Sync property number Hunger = 100
+	@Sync property number MaxHunger = 100
+	@Sync property integer Level = 1
+	@Sync property integer Exp = 0
+	@Sync property integer Score = 0
+	@Sync property integer Potions = 2
+	@Sync property integer Food = 2
+	@Sync property integer Deaths = 0
+	@Sync property boolean IsDead = false
+	property number PotionHeal = 45
+	property number FoodRestore = 30
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Initializes player-facing survival state on the map probe entity.
+		self.MaxHealth = 120
+		self.Health = self.MaxHealth
+		self.Hunger = self.MaxHunger
+		self.Level = 1
+		self.Exp = 0
+		self.Score = 0
+		self.Potions = 2
+		self.Food = 2
+		self.Deaths = 0
+		self.IsDead = false
+		log("[MapleSurvivalExpedition][PLAYABLE] PlayerSurvivalStats attached health=" .. tostring(self.Health))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveDefeat(string monsterName, integer expReward, number incomingDamage)
+		-- Applies survival pressure, rewards, drops, and level-up from a defeated monster.
+		if self.IsDead == true then
+			return
+		end
+
+		self.Health = self.Health - incomingDamage
+		self.Exp = self.Exp + expReward
+		self.Score = self.Score + expReward
+		self.Hunger = self.Hunger - 1
+		if self.Hunger < 0 then self.Hunger = 0 end
+
+		if self.Exp >= (self.Level * 300) then
+			self.Exp = self.Exp - (self.Level * 300)
+			self.Level = self.Level + 1
+			self.MaxHealth = self.MaxHealth + 18
+			self.Health = self.MaxHealth
+			self.Hunger = self.MaxHunger
+			log("[MapleSurvivalExpedition][PLAYABLE] level_up level=" .. tostring(self.Level) .. " score=" .. tostring(self.Score))
+		end
+
+		if expReward >= 60 then self.Potions = self.Potions + 1 end
+		if expReward >= 34 then self.Food = self.Food + 1 end
+		self:AutoConsume()
+
+		if self.Health <= 0 then
+			self.Health = 0
+			self.IsDead = true
+			self.Deaths = self.Deaths + 1
+			log("[MapleSurvivalExpedition][PLAYABLE] player_wiped score=" .. tostring(self.Score))
+			return
+		end
+
+		log("[MapleSurvivalExpedition][PLAYABLE] defeat_resolved monster=" .. monsterName .. " score=" .. tostring(self.Score) .. " health=" .. tostring(math.floor(self.Health)))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void AutoConsume()
+		-- Uses food or potions when state crosses survival thresholds.
+		if self.Potions > 0 and self.Health < (self.MaxHealth * 0.55) then
+			self.Potions = self.Potions - 1
+			self.Health = self.Health + self.PotionHeal
+			if self.Health > self.MaxHealth then self.Health = self.MaxHealth end
+			log("[MapleSurvivalExpedition][PLAYABLE] potion_used remaining=" .. tostring(self.Potions))
+		end
+
+		if self.Food > 0 and self.Hunger < (self.MaxHunger * 0.45) then
+			self.Food = self.Food - 1
+			self.Hunger = self.Hunger + self.FoodRestore
+			if self.Hunger > self.MaxHunger then self.Hunger = self.MaxHunger end
+			log("[MapleSurvivalExpedition][PLAYABLE] food_used remaining=" .. tostring(self.Food))
+		end
+	end
+
 end

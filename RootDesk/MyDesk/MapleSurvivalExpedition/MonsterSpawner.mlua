@@ -1,0 +1,75 @@
+@Component
+script MonsterSpawner extends Component
+
+	@Sync property integer CurrentWave = 0
+	@Sync property integer CurrentMonsters = 0
+	@Sync property integer TotalSpawned = 0
+	@Sync property boolean BossSpawned = false
+	@Sync property boolean EliteSpawnedThisWave = false
+	@Sync property string LastMonsterName = ""
+	property number SpawnTimer = 0
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Marks the map-attached spawner as active for Maker Play verification.
+		self.CurrentWave = 0
+		self.CurrentMonsters = 0
+		self.TotalSpawned = 0
+		self.BossSpawned = false
+		self.EliteSpawnedThisWave = false
+		self.LastMonsterName = ""
+		self.SpawnTimer = 0
+		log("[MapleSurvivalExpedition][PLAYABLE] MonsterSpawner attached")
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResetForWave(integer wave)
+		-- Resets per-wave spawn counters.
+		self.CurrentWave = wave
+		self.CurrentMonsters = 0
+		self.BossSpawned = false
+		self.EliteSpawnedThisWave = false
+		self.SpawnTimer = 0
+		log("[MapleSurvivalExpedition][PLAYABLE] spawner_wave_ready wave=" .. tostring(wave))
+	end
+
+	@ExecSpace("ServerOnly")
+	method string SimulateSpawn(integer wave, integer spawnIndex, number riskPercent)
+		-- Emits a deterministic monster spawn for the active wave.
+		local balanceEntity = _EntityService:GetEntityByPath("/maps/map01/BalanceTable")
+		if balanceEntity == nil then
+			log_error("[MapleSurvivalExpedition][PLAYABLE] BalanceTable entity missing")
+			return "MissingBalance"
+		end
+		---@type BalanceTable
+		local balance = balanceEntity:GetComponent("script.BalanceTable")
+		if isvalid(balance) == false then
+			log_error("[MapleSurvivalExpedition][PLAYABLE] BalanceTable component missing")
+			return "MissingBalance"
+		end
+
+		local monsterName = balance:GetMonsterName(wave, spawnIndex)
+		self.CurrentMonsters = self.CurrentMonsters + 1
+		self.TotalSpawned = self.TotalSpawned + 1
+		self.LastMonsterName = monsterName
+
+		if monsterName == "BossBalrog" then
+			self.BossSpawned = true
+		end
+		if monsterName == "EliteGolem" then
+			self.EliteSpawnedThisWave = true
+		end
+
+		log("[MapleSurvivalExpedition][PLAYABLE] spawn monster=" .. monsterName .. " wave=" .. tostring(wave) .. " risk=" .. tostring(math.floor(riskPercent)))
+		return monsterName
+	end
+
+	@ExecSpace("ServerOnly")
+	method void NotifyMonsterDefeated()
+		-- Decrements the active simulated monster count.
+		if self.CurrentMonsters > 0 then
+			self.CurrentMonsters = self.CurrentMonsters - 1
+		end
+	end
+
+end

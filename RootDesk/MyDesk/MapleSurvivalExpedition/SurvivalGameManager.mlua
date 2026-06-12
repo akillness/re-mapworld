@@ -1,0 +1,209 @@
+@Component
+script SurvivalGameManager extends Component
+
+	@Sync property integer CurrentWave = 0
+	@Sync property integer TargetWave = 10
+	@Sync property number WaveTimer = 0
+	@Sync property number RiskPercent = 0
+	@Sync property string CurrentWaveType = "normal"
+	@Sync property boolean IsWaveActive = false
+	@Sync property boolean IsComplete = false
+	@Sync property boolean BossDefeated = false
+	@Sync property string SessionOutcome = "booting"
+	@Sync property integer AccountExp = 0
+	@Sync property integer KillsThisWave = 0
+	@Sync property integer TotalKills = 0
+	property number SpawnTimer = 0
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Starts the map-attached playable expedition controller.
+		self.CurrentWave = 0
+		self.TargetWave = 10
+		self.WaveTimer = 0
+		self.RiskPercent = 0
+		self.CurrentWaveType = "normal"
+		self.IsWaveActive = false
+		self.IsComplete = false
+		self.BossDefeated = false
+		self.SessionOutcome = "running"
+		self.AccountExp = 0
+		self.KillsThisWave = 0
+		self.TotalKills = 0
+		self.SpawnTimer = 0
+		log("[MapleSurvivalExpedition][PLAYABLE] SurvivalGameManager attached and starting")
+		self:StartNextWave()
+	end
+
+	@ExecSpace("ServerOnly")
+	method void OnUpdate(number delta)
+		-- Advances the actual map-attached component loop during Maker Play mode.
+		if self.IsComplete == true then
+			return
+		end
+
+		if self.IsWaveActive == false then
+			return
+		end
+
+		self.WaveTimer = self.WaveTimer - delta
+		self.SpawnTimer = self.SpawnTimer - delta
+		local duration = self:GetWaveDuration(self.CurrentWave)
+		self.RiskPercent = 100.0 - ((self.WaveTimer / duration) * 100.0)
+		if self.RiskPercent < 0 then self.RiskPercent = 0 end
+		if self.RiskPercent > 100 then self.RiskPercent = 100 end
+
+		if self.SpawnTimer <= 0 then
+			self.SpawnTimer = self:GetSpawnInterval(self.CurrentWave)
+			self:ResolveSpawnTick()
+		end
+
+		if self.WaveTimer <= 0 then
+			self:FinishWave()
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void StartNextWave()
+		-- Starts the next playable wave and resets spawner state.
+		self.CurrentWave = self.CurrentWave + 1
+		self.KillsThisWave = 0
+		self.WaveTimer = self:GetWaveDuration(self.CurrentWave)
+		self.SpawnTimer = 0.15
+		self.CurrentWaveType = self:GetWaveType(self.CurrentWave)
+		self.IsWaveActive = true
+		local spawnerEntity = _EntityService:GetEntityByPath("/maps/map01/MonsterSpawner")
+		if spawnerEntity ~= nil then
+			---@type MonsterSpawner
+			local spawner = spawnerEntity:GetComponent("script.MonsterSpawner")
+			if isvalid(spawner) == true then
+				spawner:ResetForWave(self.CurrentWave)
+			end
+		end
+		log("[MapleSurvivalExpedition][PLAYABLE] wave_start wave=" .. tostring(self.CurrentWave) .. " type=" .. self.CurrentWaveType .. " duration=" .. tostring(self.WaveTimer))
+		if self.CurrentWaveType == "elite" then
+			log("[MapleSurvivalExpedition][PLAYABLE] elite forecast: EliteGolem wave=" .. tostring(self.CurrentWave))
+		end
+		if self.CurrentWaveType == "boss" then
+			log("[MapleSurvivalExpedition][PLAYABLE] boss forecast: BossBalrog wave=" .. tostring(self.CurrentWave))
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveSpawnTick()
+		-- Simulates a spawn/defeat transaction through map-attached gameplay components.
+		local spawnerEntity = _EntityService:GetEntityByPath("/maps/map01/MonsterSpawner")
+		local playerEntity = _EntityService:GetEntityByPath("/maps/map01/PlayerSurvivalProbe")
+		local collectionEntity = _EntityService:GetEntityByPath("/maps/map01/MonsterCollection")
+		local balanceEntity = _EntityService:GetEntityByPath("/maps/map01/BalanceTable")
+		if spawnerEntity == nil or playerEntity == nil or collectionEntity == nil or balanceEntity == nil then
+			log_error("[MapleSurvivalExpedition][PLAYABLE] required gameplay entity missing")
+			self.IsComplete = true
+			self.SessionOutcome = "missing_entity"
+			return
+		end
+
+		---@type MonsterSpawner
+		local spawner = spawnerEntity:GetComponent("script.MonsterSpawner")
+		---@type PlayerSurvivalStats
+		local stats = playerEntity:GetComponent("script.PlayerSurvivalStats")
+		---@type MonsterCollection
+		local collection = collectionEntity:GetComponent("script.MonsterCollection")
+		---@type BalanceTable
+		local balance = balanceEntity:GetComponent("script.BalanceTable")
+		if isvalid(spawner) == false or isvalid(stats) == false or isvalid(collection) == false or isvalid(balance) == false then
+			log_error("[MapleSurvivalExpedition][PLAYABLE] required gameplay component missing")
+			self.IsComplete = true
+			self.SessionOutcome = "missing_component"
+			return
+		end
+
+		local spawnIndex = self.KillsThisWave + 1
+		local monsterName = spawner:SimulateSpawn(self.CurrentWave, spawnIndex, self.RiskPercent)
+		local expReward = balance:GetMonsterExp(monsterName)
+		local incomingDamage = balance:GetMonsterDamage(monsterName) * (1.0 + (self.RiskPercent / 100.0) * balance.RiskAttackScale)
+		stats:ResolveDefeat(monsterName, expReward, incomingDamage)
+		collection:RegisterDiscovery(monsterName)
+		spawner:NotifyMonsterDefeated()
+
+		self.KillsThisWave = self.KillsThisWave + 1
+		self.TotalKills = self.TotalKills + 1
+		if monsterName == "BossBalrog" then
+			self.BossDefeated = true
+		end
+		log("[MapleSurvivalExpedition][PLAYABLE] defeat monster=" .. monsterName .. " wave=" .. tostring(self.CurrentWave) .. " kills=" .. tostring(self.KillsThisWave))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void FinishWave()
+		-- Ends the current wave and either advances or completes the expedition.
+		self.IsWaveActive = false
+		log("[MapleSurvivalExpedition][PLAYABLE] wave_clear wave=" .. tostring(self.CurrentWave) .. " kills=" .. tostring(self.KillsThisWave))
+		if self.CurrentWave >= self.TargetWave then
+			self:CompleteExpedition("cleared")
+			return
+		end
+		self:StartNextWave()
+	end
+
+	@ExecSpace("ServerOnly")
+	method void CompleteExpedition(string outcome)
+		-- Settles the playable verification session.
+		local playerEntity = _EntityService:GetEntityByPath("/maps/map01/PlayerSurvivalProbe")
+		local collectionEntity = _EntityService:GetEntityByPath("/maps/map01/MonsterCollection")
+		self.IsComplete = true
+		self.IsWaveActive = false
+		self.SessionOutcome = outcome
+		local deaths = 0
+		local collectionCount = 0
+		local score = 0
+		if playerEntity ~= nil then
+			---@type PlayerSurvivalStats
+			local stats = playerEntity:GetComponent("script.PlayerSurvivalStats")
+			if isvalid(stats) == true then
+				self.AccountExp = math.floor(stats.Score * 0.1)
+				deaths = stats.Deaths
+				score = stats.Score
+			end
+		end
+		if collectionEntity ~= nil then
+			---@type MonsterCollection
+			local collection = collectionEntity:GetComponent("script.MonsterCollection")
+			if isvalid(collection) == true then
+				collectionCount = collection.EntryCount
+			end
+		end
+		log("[MapleSurvivalExpedition][PLAYABLE] expedition_complete outcome=" .. outcome .. " bossDefeated=" .. tostring(self.BossDefeated) .. " deaths=" .. tostring(deaths) .. " score=" .. tostring(score) .. " accountExp=" .. tostring(self.AccountExp) .. " collection=" .. tostring(collectionCount))
+	end
+
+	method number GetWaveDuration(integer wave)
+		-- Reads wave duration from the map-attached balance component.
+		local balanceEntity = _EntityService:GetEntityByPath("/maps/map01/BalanceTable")
+		if balanceEntity == nil then return 2.0 end
+		---@type BalanceTable
+		local balance = balanceEntity:GetComponent("script.BalanceTable")
+		if isvalid(balance) == false then return 2.0 end
+		return balance:GetWaveDuration(wave)
+	end
+
+	method number GetSpawnInterval(integer wave)
+		-- Reads spawn cadence from the map-attached balance component.
+		local balanceEntity = _EntityService:GetEntityByPath("/maps/map01/BalanceTable")
+		if balanceEntity == nil then return 0.5 end
+		---@type BalanceTable
+		local balance = balanceEntity:GetComponent("script.BalanceTable")
+		if isvalid(balance) == false then return 0.5 end
+		return balance:GetSpawnInterval(wave)
+	end
+
+	method string GetWaveType(integer wave)
+		-- Reads wave type from the map-attached balance component.
+		local balanceEntity = _EntityService:GetEntityByPath("/maps/map01/BalanceTable")
+		if balanceEntity == nil then return "normal" end
+		---@type BalanceTable
+		local balance = balanceEntity:GetComponent("script.BalanceTable")
+		if isvalid(balance) == false then return "normal" end
+		return balance:GetWaveType(wave)
+	end
+
+end

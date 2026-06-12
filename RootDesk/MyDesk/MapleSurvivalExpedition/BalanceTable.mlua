@@ -1,0 +1,80 @@
+@Component
+script BalanceTable extends Component
+
+	@Sync property integer TargetWave = 10
+	@Sync property number BaseWaveDuration = 1.5
+	@Sync property number WaveDurationPerWave = 0.15
+	@Sync property number PlayerMaxHealth = 120
+	@Sync property number PotionHeal = 45
+	@Sync property number FoodRestore = 30
+	@Sync property number RiskAttackScale = 0.5
+	@Sync property number CollectionAttackBonus = 0.03
+	@Sync property number CollectionHealthBonus = 6
+	@Sync property integer MonsterTypes = 7
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- Reports that the map-attached balance component is live in Maker Play mode.
+		log("[MapleSurvivalExpedition][PLAYABLE] BalanceTable attached targetWave=" .. tostring(self.TargetWave) .. " monsterTypes=" .. tostring(self.MonsterTypes))
+	end
+
+	method string GetWaveType(integer wave)
+		-- Returns the playable content type for a wave.
+		if wave == 10 then return "boss" end
+		if wave == 3 or wave == 6 or wave == 9 then return "elite" end
+		return "normal"
+	end
+
+	method number GetWaveDuration(integer wave)
+		-- Returns accelerated verification duration while preserving wave progression.
+		return self.BaseWaveDuration + (wave * self.WaveDurationPerWave)
+	end
+
+	method number GetSpawnInterval(integer wave)
+		-- Returns deterministic spawn cadence for the real Maker play verification.
+		if wave == 10 then return 0.42 end
+		if self:GetWaveType(wave) == "elite" then return 0.45 end
+		return 0.5
+	end
+
+	method integer GetMaxAlive(integer wave)
+		-- Returns maximum concurrently simulated enemies for the wave.
+		if wave == 10 then return 7 end
+		if self:GetWaveType(wave) == "elite" then return 6 end
+		return 5
+	end
+
+	method string GetMonsterName(integer wave, integer index)
+		-- Returns deterministic monster identity for each wave slot.
+		if wave == 10 then return "BossBalrog" end
+		if self:GetWaveType(wave) == "elite" and index == 1 then return "EliteGolem" end
+		if wave <= 1 then return "Snail" end
+		if wave <= 2 then return "Mushroom" end
+		if wave <= 4 then return "Slime" end
+		if wave <= 7 then return "Stump" end
+		return "WildBoar"
+	end
+
+	method integer GetMonsterExp(string monsterName)
+		-- Returns score and experience reward by monster type.
+		if monsterName == "BossBalrog" then return 600 end
+		if monsterName == "EliteGolem" then return 140 end
+		if monsterName == "WildBoar" then return 60 end
+		if monsterName == "Stump" then return 46 end
+		if monsterName == "Slime" then return 34 end
+		if monsterName == "Mushroom" then return 26 end
+		return 18
+	end
+
+	method number GetMonsterDamage(string monsterName)
+		-- Returns base incoming damage by monster type.
+		if monsterName == "BossBalrog" then return 5.0 end
+		if monsterName == "EliteGolem" then return 3.0 end
+		if monsterName == "WildBoar" then return 2.2 end
+		if monsterName == "Stump" then return 1.8 end
+		if monsterName == "Slime" then return 1.3 end
+		if monsterName == "Mushroom" then return 1.0 end
+		return 0.8
+	end
+
+end
